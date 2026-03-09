@@ -515,6 +515,56 @@
             font-size: 1rem;
         }
 
+        /* Wallet Selection Modal */
+        .wallet-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .wallet-option:active {
+            transform: scale(0.98);
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .wallet-option-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .wallet-option-info {
+            flex: 1;
+        }
+
+        .wallet-option-name {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .wallet-option-desc {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .wallet-option-arrow {
+            font-size: 1.2rem;
+            color: #888;
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -590,7 +640,7 @@
             <span class="logo-icon">🏰</span>
             <span class="logo-text">命运塔·首登者</span>
         </div>
-        <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">连接钱包</button>
+        <button class="wallet-btn" id="walletBtn" onclick="showWalletModal()">连接钱包</button>
     </header>
 
     <!-- Main Content -->
@@ -739,6 +789,51 @@
         <button class="btn btn-primary" onclick="startGame()">🎮 开始游戏</button>
     </div>
 
+    <!-- Wallet Selection Modal -->
+    <div class="modal" id="walletModal">
+        <div class="modal-content">
+            <h3 class="modal-title">🔗 选择钱包</h3>
+
+            <div class="wallet-option" onclick="connectOKXWallet()">
+                <div class="wallet-option-icon" style="background: linear-gradient(135deg, #000, #1a1a1a);">🅾️</div>
+                <div class="wallet-option-info">
+                    <div class="wallet-option-name">OKX Wallet</div>
+                    <div class="wallet-option-desc">支持多链的Web3钱包</div>
+                </div>
+                <div class="wallet-option-arrow">›</div>
+            </div>
+
+            <div class="wallet-option" onclick="connectBinanceWallet()">
+                <div class="wallet-option-icon" style="background: linear-gradient(135deg, #F0B90B, #F8D12F);">🇧</div>
+                <div class="wallet-option-info">
+                    <div class="wallet-option-name">币安钱包 Binance</div>
+                    <div class="wallet-option-desc">Binance Chain 官方钱包</div>
+                </div>
+                <div class="wallet-option-arrow">›</div>
+            </div>
+
+            <div class="wallet-option" onclick="connectMetaMask()">
+                <div class="wallet-option-icon" style="background: linear-gradient(135deg, #F6851B, #E4761B);">🦊</div>
+                <div class="wallet-option-info">
+                    <div class="wallet-option-name">MetaMask</div>
+                    <div class="wallet-option-desc">最受欢迎的以太坊钱包</div>
+                </div>
+                <div class="wallet-option-arrow">›</div>
+            </div>
+
+            <div class="wallet-option" onclick="connectWalletConnect()">
+                <div class="wallet-option-icon" style="background: linear-gradient(135deg, #3B99FC, #66E1F6);">🔗</div>
+                <div class="wallet-option-info">
+                    <div class="wallet-option-name">WalletConnect</div>
+                    <div class="wallet-option-desc">连接超过300个钱包</div>
+                </div>
+                <div class="wallet-option-arrow">›</div>
+            </div>
+
+            <button class="close-btn" onclick="closeWalletModal()">取消</button>
+        </div>
+    </div>
+
     <!-- Payment Modal -->
     <div class="modal" id="paymentModal">
         <div class="modal-content">
@@ -761,8 +856,8 @@
                     <button class="copy-btn" onclick="copyAddress('0x6b107f2a17f218df01367f94c4a77758ba9cb4df')">复制</button>
                 </div>
                 <div class="address-item">
+                    <div class="address-icon">💠</div>
                     <div class="address-info">
-                        <div class="address-icon">💠</div>
                         <div class="address-name">ETH (ERC20)</div>
                         <div class="address-value">0x6b107f2a17f218df01367f94c4a77758ba9cb4df</div>
                     </div>
@@ -793,7 +888,7 @@
                     <button class="copy-btn" onclick="copyAddress('BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN')">复制</button>
                 </div>
             </div>
-            <button class="close-btn" onclick="closeModal()">关闭</button>
+            <button class="close-btn" onclick="closePaymentModal()">关闭</button>
         </div>
     </div>
 
@@ -811,6 +906,8 @@
         };
 
         let walletConnected = false;
+        let currentWallet = null;
+        let currentAddress = null;
 
         // Initialize
         window.addEventListener('load', () => {
@@ -819,47 +916,200 @@
             }, 1500);
         });
 
-        // Connect Wallet
-        async function connectWallet() {
-            showToast('🔗 正在连接钱包...');
+        // ==================== Wallet Selection Modal ====================
+        function showWalletModal() {
+            document.getElementById('walletModal').classList.add('show');
+        }
 
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({
-                        method: 'eth_requestAccounts'
-                    });
+        function closeWalletModal() {
+            document.getElementById('walletModal').classList.remove('show');
+        }
 
-                    walletConnected = true;
-                    const btn = document.getElementById('walletBtn');
-                    btn.textContent = '✅ ' + accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
-                    btn.classList.add('connected');
+        // ==================== OKX Wallet Connection ====================
+        async function connectOKXWallet() {
+            closeWalletModal();
+            showToast('🔗 正在连接 OKX Wallet...');
 
-                    document.getElementById('walletStatus').textContent = '已连接';
-                    document.getElementById('walletStatus').classList.add('connected');
-
-                    // Update mock balances
-                    document.getElementById('fateBalance').textContent = '1,250';
-                    document.getElementById('usdtBalance').textContent = '500';
-                    document.getElementById('nftCount').textContent = '3';
-                    document.getElementById('score').textContent = '8,520';
-
-                    showToast('✅ 钱包连接成功！');
-                } catch (error) {
-                    showToast('❌ 连接失败: ' + error.message);
+            try {
+                // Check if OKX wallet is installed
+                if (typeof window.okxwallet === 'undefined') {
+                    showToast('❌ 未检测到 OKX Wallet');
+                    setTimeout(() => {
+                        window.open('https://www.okx.com/web3', '_blank');
+                    }, 1500);
+                    return;
                 }
-            } else {
-                showToast('❌ 请安装 MetaMask');
-                setTimeout(() => {
-                    window.open('https://metamask.io', '_blank');
-                }, 1000);
+
+                // Request connection
+                const accounts = await window.okxwallet.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                if (accounts && accounts.length > 0) {
+                    currentAddress = accounts[0];
+                    currentWallet = 'OKX';
+                    walletConnected = true;
+
+                    // Update UI
+                    updateWalletUI('OKX', currentAddress);
+                    showToast('✅ OKX Wallet 连接成功！');
+
+                    // Get balance (optional)
+                    try {
+                        const balance = await window.okxwallet.request({
+                            method: 'eth_getBalance',
+                            params: [currentAddress, 'latest']
+                        });
+                        console.log('Balance:', balance);
+                    } catch (e) {
+                        console.log('Could not get balance');
+                    }
+                }
+            } catch (error) {
+                console.error('OKX Wallet connection error:', error);
+                showToast('❌ 连接失败: ' + (error.message || '用户取消'));
             }
         }
 
-        // Start Game
+        // ==================== Binance Wallet Connection ====================
+        async function connectBinanceWallet() {
+            closeWalletModal();
+            showToast('🔗 正在连接币安钱包...');
+
+            try {
+                // Check if Binance Chain wallet is installed
+                if (typeof window.BinanceChain === 'undefined') {
+                    showToast('❌ 未检测到币安钱包');
+                    setTimeout(() => {
+                        window.open('https://www.bnbchain.org/en/binance-wallet', '_blank');
+                    }, 1500);
+                    return;
+                }
+
+                // Request connection
+                const result = await window.BinanceChain.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                if (result && result.length > 0) {
+                    currentAddress = result[0];
+                    currentWallet = 'Binance';
+                    walletConnected = true;
+
+                    // Update UI
+                    updateWalletUI('Binance', currentAddress);
+                    showToast('✅ 币安钱包连接成功！');
+
+                    // Get account info
+                    try {
+                        const accountInfo = await window.BinanceChain.request({
+                            method: 'eth_accounts'
+                        });
+                        console.log('Binance Account:', accountInfo);
+                    } catch (e) {
+                        console.log('Could not get account info');
+                    }
+                }
+            } catch (error) {
+                console.error('Binance Wallet connection error:', error);
+                showToast('❌ 连接失败: ' + (error.message || '用户取消'));
+            }
+        }
+
+        // ==================== MetaMask Connection ====================
+        async function connectMetaMask() {
+            closeWalletModal();
+            showToast('🔗 正在连接 MetaMask...');
+
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showToast('❌ 未检测到 MetaMask');
+                    setTimeout(() => {
+                        window.open('https://metamask.io', '_blank');
+                    }, 1500);
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                if (accounts && accounts.length > 0) {
+                    currentAddress = accounts[0];
+                    currentWallet = 'MetaMask';
+                    walletConnected = true;
+
+                    updateWalletUI('MetaMask', currentAddress);
+                    showToast('✅ MetaMask 连接成功！');
+
+                    // Listen for account changes
+                    window.ethereum.on('accountsChanged', (newAccounts) => {
+                        if (newAccounts.length === 0) {
+                            disconnectWallet();
+                        } else {
+                            currentAddress = newAccounts[0];
+                            updateWalletUI('MetaMask', currentAddress);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('MetaMask connection error:', error);
+                showToast('❌ 连接失败: ' + (error.message || '用户取消'));
+            }
+        }
+
+        // ==================== WalletConnect ====================
+        function connectWalletConnect() {
+            closeWalletModal();
+            showToast('🔗 WalletConnect 准备中...');
+
+            // In a real implementation, you would use the WalletConnect library
+            // For demo purposes, we'll show an alert
+            setTimeout(() => {
+                alert('WalletConnect 集成\n\n在完整版本中，这里将显示二维码扫描界面，支持连接以下钱包：\n• Trust Wallet\n• Rainbow\n• Argent\n• imToken\n• TokenPocket\n• 以及300+其他钱包');
+            }, 500);
+        }
+
+        // ==================== Update Wallet UI ====================
+        function updateWalletUI(walletName, address) {
+            const btn = document.getElementById('walletBtn');
+            btn.textContent = '✅ ' + walletName;
+            btn.classList.add('connected');
+
+            document.getElementById('walletStatus').textContent = walletName + ' 已连接';
+            document.getElementById('walletStatus').classList.add('connected');
+
+            // Update mock balances
+            document.getElementById('fateBalance').textContent = '1,250';
+            document.getElementById('usdtBalance').textContent = '500';
+            document.getElementById('nftCount').textContent = '3';
+            document.getElementById('score').textContent = '8,520';
+        }
+
+        // ==================== Disconnect Wallet ====================
+        function disconnectWallet() {
+            walletConnected = false;
+            currentWallet = null;
+            currentAddress = null;
+
+            const btn = document.getElementById('walletBtn');
+            btn.textContent = '连接钱包';
+            btn.classList.remove('connected');
+
+            document.getElementById('walletStatus').textContent = '未连接';
+            document.getElementById('walletStatus').classList.remove('connected');
+
+            document.getElementById('fateBalance').textContent = '0';
+            document.getElementById('usdtBalance').textContent = '0';
+            document.getElementById('nftCount').textContent = '0';
+            document.getElementById('score').textContent = '0';
+        }
+
+        // ==================== Start Game ====================
         function startGame(mode) {
             if (!walletConnected) {
                 showToast('⚠️ 请先连接钱包');
-                connectWallet();
+                showWalletModal();
                 return;
             }
 
@@ -872,31 +1122,30 @@
 
             showToast('🎮 正在进入' + (modeNames[mode] || '游戏') + '...');
 
-            // In real implementation, this would navigate to the game
             setTimeout(() => {
-                alert('🎮 游戏功能演示\n\n在完整版本中，这里将进入：\n• 13层塔楼3D可视化\n• 52张手牌交互\n• 实时WebSocket对战\n• 激怒牌机制\n• 首登者竞争');
+                alert('🎮 游戏功能演示\n\n钱包: ' + currentWallet + '\n地址: ' + currentAddress.slice(0, 10) + '...\n\n在完整版本中，这里将进入：\n• 13层塔楼3D可视化\n• 52张手牌交互\n• 实时WebSocket对战\n• 激怒牌机制\n• 首登者竞争');
             }, 500);
         }
 
-        // Show Payment Modal
+        // ==================== Payment Modal ====================
         function showPayment(currency) {
-            showModal();
+            showPaymentModal();
             showToast('💰 选择' + currency + '充值');
         }
 
         function showAllPayments() {
-            showModal();
+            showPaymentModal();
         }
 
-        function showModal() {
+        function showPaymentModal() {
             document.getElementById('paymentModal').classList.add('show');
         }
 
-        function closeModal() {
+        function closePaymentModal() {
             document.getElementById('paymentModal').classList.remove('show');
         }
 
-        // Copy Address
+        // ==================== Copy Address ====================
         function copyAddress(address) {
             navigator.clipboard.writeText(address).then(() => {
                 showToast('✅ 地址已复制！');
@@ -905,7 +1154,7 @@
             });
         }
 
-        // Show Toast
+        // ==================== Show Toast ====================
         function showToast(message) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -915,9 +1164,13 @@
             }, 2500);
         }
 
-        // Close modal on outside click
+        // Close modals on outside click
+        document.getElementById('walletModal').addEventListener('click', function(e) {
+            if (e.target === this) closeWalletModal();
+        });
+
         document.getElementById('paymentModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+            if (e.target === this) closePaymentModal();
         });
     </script>
 </body>
