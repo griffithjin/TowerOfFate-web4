@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>命运塔·连胜模式 | Tower of Fate Streak</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        :root {
+            --gold: #ffd700;
+            --gold-dark: #b8860b;
+            --orange: #ff6b00;
+            --bg-dark: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --danger: #ff4444;
+            --success: #00ff88;
+            --info: #00aaff;
+            --streak-accent: #e74c3c;
+            --streak-fire: #ff6b35;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #4a1a1a 50%, var(--bg-tertiary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        #game-container {
+            display: grid;
+            grid-template-areas:
+                "header header header"
+                "left tower right"
+                "left hand right"
+                "controls controls controls";
+            grid-template-columns: 60px 1fr 80px;
+            grid-template-rows: auto 1fr 120px auto;
+            height: 100vh;
+            height: 100dvh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        }
+
+        /* Header */
+        #game-header {
+            grid-area: header;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(231, 76, 60, 0.4);
+            z-index: 100;
+        }
+
+        .mode-badge {
+            background: linear-gradient(45deg, var(--streak-accent), var(--streak-fire));
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--streak-accent), var(--streak-fire));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px solid rgba(231, 76, 60, 0.5);
+            animation: fire-pulse 1s infinite;
+        }
+
+        @keyframes fire-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.8); }
+        }
+
+        .player-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-name {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--streak-accent);
+        }
+
+        .player-rank {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+        }
+
+        .streak-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(255, 107, 53, 0.2));
+            border: 2px solid var(--streak-accent);
+            border-radius: 16px;
+            padding: 6px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .streak-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .streak-label {
+            font-size: 0.6rem;
+            color: var(--streak-fire);
+            text-transform: uppercase;
+            z-index: 1;
+        }
+
+        .streak-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--gold);
+            z-index: 1;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .streak-fire {
+            position: absolute;
+            font-size: 0.8rem;
+            animation: fire-dance 0.5s infinite alternate;
+        }
+
+        .streak-fire:nth-child(1) { left: 5px; top: 50%; }
+        .streak-fire:nth-child(2) { right: 5px; top: 50%; }
+
+        @keyframes fire-dance {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(-3px) scale(1.2); }
+        }
+
+        /* Left Panel */
+        #left-panel {
+            grid-area: left;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 8px 4px;
+            gap: 8px;
+        }
+
+        .panel-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(231, 76, 60, 0.1);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            color: var(--streak-accent);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .panel-btn:active {
+            transform: scale(0.95);
+            background: rgba(231, 76, 60, 0.2);
+        }
+
+        .panel-btn .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.6rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 3D Tower Area */
+        #tower-3d {
+            grid-area: tower;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .tower-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .streak-bonus {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--streak-accent);
+            border-radius: 20px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .bonus-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bonus-label {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+        }
+
+        .bonus-value {
+            font-size: 0.85rem;
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        .tower-level {
+            width: 180px;
+            height: 50px;
+            background: linear-gradient(180deg, rgba(231, 76, 60, 0.2), rgba(255, 107, 53, 0.1));
+            border: 2px solid rgba(231, 76, 60, 0.4);
+            border-radius: 8px;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--streak-accent);
+            transform-style: preserve-3d;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tower-level.active {
+            background: linear-gradient(180deg, rgba(231, 76, 60, 0.4), rgba(255, 107, 53, 0.2));
+            border-color: var(--streak-accent);
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .tower-level.completed {
+            background: rgba(0, 255, 136, 0.2);
+            border-color: var(--success);
+        }
+
+        .tower-level.boss {
+            background: linear-gradient(180deg, rgba(155, 0, 0, 0.4), rgba(100, 0, 0, 0.2));
+            border-color: #ff0000;
+            animation: boss-glow 2s infinite;
+        }
+
+        @keyframes boss-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.8); }
+        }
+
+        .tower-level-number {
+            position: absolute;
+            left: 10px;
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .tower-level-guard {
+            font-size: 1.2rem;
+        }
+
+        .current-level-indicator {
+            position: absolute;
+            right: -30px;
+            width: 24px;
+            height: 24px;
+            background: var(--streak-accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #fff;
+            animation: pulse-streak 1s infinite;
+        }
+
+        @keyframes pulse-streak {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); transform: scale(1); }
+            50% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); transform: scale(1.1); }
+        }
+
+        .tower-floors {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+        }
+
+        /* Right Panel */
+        #right-panel {
+            grid-area: right;
+            display: flex;
+            flex-direction: column;
+            padding: 8px 4px;
+            gap: 8px;
+        }
+
+        .guard-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .guard-area-title {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .guard-card {
+            width: 100%;
+            aspect-ratio: 3/4;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(139, 0, 0, 0.1));
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .guard-card:active {
+            transform: scale(0.95);
+        }
+
+        .guard-card.empty {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .guard-card-value {
+            font-size: 0.7rem;
+            color: var(--danger);
+            margin-top: 4px;
+        }
+
+        .next-reward {
+            margin-top: auto;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 107, 0, 0.1));
+            border: 2px solid var(--gold);
+            border-radius: 12px;
+            padding: 10px 4px;
+            text-align: center;
+        }
+
+        .next-reward-label {
+            font-size: 0.55rem;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .next-reward-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--gold);
+        }
+
+        /* Hand Area */
+        #hand-area {
+            grid-area: hand;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(231, 76, 60, 0.2);
+        }
+
+        .hand-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .hand-title {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .hand-count {
+            font-size: 0.7rem;
+            color: var(--streak-accent);
+            background: rgba(231, 76, 60, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .hand-scroll {
+            flex: 1;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 4px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-snap-type: x mandatory;
+        }
+
+        .hand-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hand-card {
+            min-width: 60px;
+            max-width: 60px;
+            height: 90px;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15), rgba(255, 107, 53, 0.1));
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            scroll-snap-align: start;
+            position: relative;
+        }
+
+        .hand-card:active {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .hand-card.selected {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.4), rgba(255, 107, 53, 0.3));
+            border-color: var(--streak-accent);
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
+            transform: translateY(-10px);
+        }
+
+        .hand-card-suit {
+            font-size: 1.2rem;
+        }
+
+        .hand-card-value {
+            font-size: 0.75rem;
+            color: var(--streak-accent);
+            font-weight: bold;
+        }
+
+        .hand-card.joker {
+            background: linear-gradient(135deg, rgba(255, 0, 255, 0.2), rgba(0, 255, 255, 0.1));
+            border-color: #ff00ff;
+        }
+
+        /* Controls */
+        #controls {
+            grid-area: controls;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(10, 10, 15, 0.98);
+            border-top: 1px solid rgba(231, 76, 60, 0.2);
+            gap: 12px;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            min-width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-btn-icon {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .control-btn-primary {
+            flex: 1;
+            max-width: 150px;
+            background: linear-gradient(45deg, var(--streak-accent), var(--streak-fire));
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            animation: btn-fire 2s infinite;
+        }
+
+        @keyframes btn-fire {
+            0%, 100% { box-shadow: 0 0 10px rgba(231, 76, 60, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(231, 76, 60, 0.8); }
+        }
+
+        .control-btn-danger {
+            background: rgba(255, 0, 0, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(255, 0, 0, 0.4);
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: env(safe-area-inset-top, 0);
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 12px;
+            border-radius: 0 0 12px 12px;
+            font-size: 0.65rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .connection-status.connected {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+        }
+
+        .connection-status.disconnected {
+            background: rgba(255, 0, 0, 0.2);
+            color: var(--danger);
+        }
+
+        .connection-status.connecting {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--streak-accent);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        .connected .status-dot {
+            background: var(--success);
+            animation: none;
+        }
+
+        .disconnected .status-dot {
+            background: var(--danger);
+        }
+
+        .connecting .status-dot {
+            background: var(--streak-accent);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            color: var(--streak-accent);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+
+        .modal-btn-primary {
+            background: linear-gradient(45deg, var(--streak-accent), var(--streak-fire));
+            color: #fff;
+        }
+
+        .modal-btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 180px;
+            width: 280px;
+            background: rgba(10, 10, 15, 0.98);
+            border-right: 1px solid rgba(231, 76, 60, 0.2);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-out;
+            z-index: 500;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stats-panel.show {
+            transform: translateX(0);
+        }
+
+        .stats-header {
+            padding: 12px;
+            border-bottom: 1px solid rgba(231, 76, 60, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-size: 0.9rem;
+            color: var(--streak-accent);
+            font-weight: bold;
+        }
+
+        .milestone-list {
+            margin-top: 16px;
+        }
+
+        .milestone-title {
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        .milestone-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+
+        .milestone-item.completed {
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .milestone-icon {
+            font-size: 1.2rem;
+        }
+
+        .milestone-info {
+            flex: 1;
+        }
+
+        .milestone-name {
+            font-size: 0.75rem;
+        }
+
+        .milestone-reward {
+            font-size: 0.65rem;
+            color: var(--gold);
+        }
+
+        /* Items Panel */
+        .items-panel {
+            position: fixed;
+            left: 60px;
+            bottom: 180px;
+            width: 200px;
+            background: rgba(10, 10, 15, 0.98);
+            border: 1px solid rgba(231, 76, 60, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            transform: scale(0);
+            transform-origin: bottom left;
+            transition: transform 0.2s ease-out;
+            z-index: 500;
+        }
+
+        .items-panel.show {
+            transform: scale(1);
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .item-btn {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .item-btn span {
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            #game-container {
+                grid-template-columns: 80px 1fr 100px;
+                grid-template-rows: auto 1fr 140px auto;
+            }
+
+            .hand-card {
+                min-width: 70px;
+                max-width: 70px;
+                height: 105px;
+            }
+
+            .tower-level {
+                width: 220px;
+                height: 60px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #game-container {
+                grid-template-columns: 100px 1fr 120px;
+            }
+
+            .hand-card {
+                min-width: 80px;
+                max-width: 80px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status -->
+    <div id="connection-status" class="connection-status connecting">
+        <span class="status-dot"></span>
+        <span class="status-text">连接中...</span>
+    </div>
+
+    <!-- Game Container -->
+    <div id="game-container">
+        <!-- Header -->
+        <header id="game-header">
+            <div class="player-info">
+                <div class="player-avatar">🔥</div>
+                <div class="player-details">
+                    <span class="player-name">连胜挑战者</span>
+                    <span class="player-rank">🏆 最高纪录: 25连胜</span>
+                </div>
+            </div>
+            <div class="streak-display">
+                <span class="streak-fire">🔥</span>
+                <span class="streak-label">当前连胜</span>
+                <span class="streak-value" id="streak-count">12</span>
+                <span class="streak-fire">🔥</span>
+            </div>
+            <div class="mode-badge">连胜模式</div>
+        </header>
+
+        <!-- Left Panel -->
+        <aside id="left-panel">
+            <button class="panel-btn" id="stats-btn" title="战绩统计">
+                📊
+            </button>
+            <button class="panel-btn" id="items-btn" title="道具">
+                🎒
+            </button>
+        </aside>
+
+        <!-- 3D Tower -->
+        <main id="tower-3d">
+            <div class="streak-bonus">
+                <div class="bonus-item">
+                    <span class="bonus-label">伤害加成</span>
+                    <span class="bonus-value">+24%</span>
+                </div>
+                <div class="bonus-item">
+                    <span class="bonus-label">金币加成</span>
+                    <span class="bonus-value">+36%</span>
+                </div>
+                <div class="bonus-item">
+                    <span class="bonus-label">经验加成</span>
+                    <span class="bonus-value">+12%</span>
+                </div>
+            </div>
+            <div class="tower-container">
+                <div class="tower-floors">
+                    <div class="tower-level boss">
+                        <span class="tower-level-number">10</span>
+                        <span class="tower-level-guard">👑</span>
+                    </div>
+                    <div class="tower-level completed">
+                        <span class="tower-level-number">9</span>
+                        <span class="tower-level-guard">⚔️</span>
+                    </div>
+                    <div class="tower-level completed">
+                        <span class="tower-level-number">8</span>
+                        <span class="tower-level-guard">🗡️</span>
+                    </div>
+                    <div class="tower-level active">
+                        <span class="tower-level-number">7</span>
+                        <span class="tower-level-guard">👹</span>
+                        <div class="current-level-indicator">🔥</div>
+                    </div>
+                    <div class="tower-level">
+                        <span class="tower-level-number">6</span>
+                        <span class="tower-level-guard">❓</span>
+                    </div>
+                    <div class="tower-level">
+                        <span class="tower-level-number">5</span>
+                        <span class="tower-level-guard">❓</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Panel -->
+        <aside id="right-panel">
+            <div class="guard-area">
+                <span class="guard-area-title">守卫牌</span>
+                <div class="guard-card">
+                    <span>🛡️</span>
+                    <span class="guard-card-value">K♠</span>
+                </div>
+                <div class="guard-card">
+                    <span>⚔️</span>
+                    <span class="guard-card-value">Q♥</span>
+                </div>
+                <div class="guard-card empty">
+                    <span>➕</span>
+                </div>
+            </div>
+            <div class="next-reward">
+                <span class="next-reward-label">下一奖励</span>
+                <span class="next-reward-value">15连胜</span>
+                <span style="font-size: 0.65rem; color: var(--gold);">🏆 传奇宝箱</span>
+            </div>
+        </aside>
+
+        <!-- Hand Area -->
+        <section id="hand-area">
+            <div class="hand-header">
+                <span class="hand-title">手牌</span>
+                <span class="hand-count">13张</span>
+            </div>
+            <div class="hand-scroll" id="hand-scroll">
+                <div class="hand-card">
+                    <span class="hand-card-suit">♠</span>
+                    <span class="hand-card-value">A</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♥</span>
+                    <span class="hand-card-value">K</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♦</span>
+                    <span class="hand-card-value">Q</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♣</span>
+                    <span class="hand-card-value">J</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♠</span>
+                    <span class="hand-card-value">10</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♥</span>
+                    <span class="hand-card-value">9</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♦</span>
+                    <span class="hand-card-value">8</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♣</span>
+                    <span class="hand-card-value">7</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♠</span>
+                    <span class="hand-card-value">6</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♥</span>
+                    <span class="hand-card-value">5</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♦</span>
+                    <span class="hand-card-value">4</span>
+                </div>
+                <div class="hand-card">
+                    <span class="hand-card-suit">♣</span>
+                    <span class="hand-card-value">3</span>
+                </div>
+                <div class="hand-card joker">
+                    <span class="hand-card-suit">🃏</span>
+                    <span class="hand-card-value">JOKER</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Controls -->
+        <footer id="controls">
+            <div class="control-group">
+                <button class="control-btn control-btn-icon" id="settings-btn" title="设置">⚙️</button>
+                <button class="control-btn control-btn-icon" id="sound-btn" title="音效">🔊</button>
+            </div>
+            <button class="control-btn control-btn-primary" id="play-btn">出牌</button>
+            <div class="control-group">
+                <button class="control-btn control-btn-icon control-btn-danger" id="exit-btn" title="退出">🚪</button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="stats-panel" id="stats-panel">
+        <div class="stats-header">
+            <span style="color: var(--streak-accent); font-size: 0.9rem;">📊 连胜战绩</span>
+            <button class="panel-btn" id="close-stats" style="width: 32px; height: 32px;">✕</button>
+        </div>
+        <div class="stats-content">
+            <div class="stat-row">
+                <span class="stat-label">当前连胜</span>
+                <span class="stat-value">12</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">最高连胜</span>
+                <span class="stat-value">25</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">击败守卫</span>
+                <span class="stat-value">156</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">累计伤害</span>
+                <span class="stat-value">89,420</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">获得金币</span>
+                <span class="stat-value">12,580</span>
+            </div>
+
+            <div class="milestone-list">
+                <div class="milestone-title">🏆 连胜里程碑</div>
+                <div class="milestone-item completed">
+                    <span class="milestone-icon">✅</span>
+                    <div class="milestone-info">
+                        <div class="milestone-name">5连胜</div>
+                        <div class="milestone-reward">+100金币</div>
+                    </div>
+                </div>
+                <div class="milestone-item completed">
+                    <span class="milestone-icon">✅</span>
+                    <div class="milestone-info">
+                        <div class="milestone-name">10连胜</div>
+                        <div class="milestone-reward">+稀有卡牌包</div>
+                    </div>
+                </div>
+                <div class="milestone-item">
+                    <span class="milestone-icon">⏳</span>
+                    <div class="milestone-info">
+                        <div class="milestone-name">15连胜</div>
+                        <div class="milestone-reward">+传奇宝箱</div>
+                    </div>
+                </div>
+                <div class="milestone-item">
+                    <span class="milestone-icon">🔒</span>
+                    <div class="milestone-info">
+                        <div class="milestone-name">20连胜</div>
+                        <div class="milestone-reward">+限定称号</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Panel -->
+    <div class="items-panel" id="items-panel">
+        <div class="items-grid">
+            <button class="item-btn">🔮<span>透视</span></button>
+            <button class="item-btn">⚡<span>加速</span></button>
+            <button class="item-btn">🛡️<span>护盾</span></button>
+            <button class="item-btn">💣<span>炸弹</span></button>
+            <button class="item-btn">🔄<span>换牌</span></button>
+            <button class="item-btn">💊<span>恢复</span></button>
+        </div>
+    </div>
+
+    <!-- Exit Confirm Modal -->
+    <div class="modal" id="exit-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚠️ 确认退出?</h3>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 0.85rem;">
+                退出后连胜纪录将保存，但当前进度会重置。<br>
+                <span style="color: var(--streak-accent);">当前连胜: 12</span>
+            </p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-secondary" id="cancel-exit">取消</button>
+                <button class="modal-btn modal-btn-primary" id="confirm-exit">确认退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">⚙️ 游戏设置</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem;">音效</span>
+                    <button class="control-btn control-btn-icon" id="toggle-sound" style="width: 50px;">🔊</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem;">震动</span>
+                    <button class="control-btn control-btn-icon" id="toggle-vibrate" style="width: 50px;">📳</button>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem;">动画</span>
+                    <button class="control-btn control-btn-icon" id="toggle-anim" style="width: 50px;">✨</button>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-primary" id="close-settings">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameState = {
+            connected: false,
+            streak: 12,
+            selectedCard: null,
+            soundEnabled: true,
+            vibrateEnabled: true,
+            animationEnabled: true
+        };
+
+        function connectWebSocket() {
+            updateConnectionStatus('connecting');
+            setTimeout(() => {
+                gameState.connected = true;
+                updateConnectionStatus('connected');
+            }, 1500);
+        }
+
+        function updateConnectionStatus(status) {
+            const statusEl = document.getElementById('connection-status');
+            const statusText = statusEl.querySelector('.status-text');
+            statusEl.className = 'connection-status ' + status;
+            const texts = {
+                connected: '已连接',
+                disconnected: '已断开',
+                connecting: '连接中...'
+            };
+            statusText.textContent = texts[status];
+        }
+
+        document.querySelectorAll('.hand-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.hand-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                gameState.selectedCard = this;
+                if (gameState.vibrateEnabled && navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        });
+
+        const statsBtn = document.getElementById('stats-btn');
+        const statsPanel = document.getElementById('stats-panel');
+        const closeStats = document.getElementById('close-stats');
+
+        statsBtn.addEventListener('click', () => {
+            statsPanel.classList.toggle('show');
+            document.getElementById('items-panel').classList.remove('show');
+        });
+
+        closeStats.addEventListener('click', () => {
+            statsPanel.classList.remove('show');
+        });
+
+        const itemsBtn = document.getElementById('items-btn');
+        const itemsPanel = document.getElementById('items-panel');
+
+        itemsBtn.addEventListener('click', () => {
+            itemsPanel.classList.toggle('show');
+            statsPanel.classList.remove('show');
+        });
+
+        const exitBtn = document.getElementById('exit-btn');
+        const exitModal = document.getElementById('exit-modal');
+        const cancelExit = document.getElementById('cancel-exit');
+        const confirmExit = document.getElementById('confirm-exit');
+
+        exitBtn.addEventListener('click', () => {
+            exitModal.classList.add('show');
+        });
+
+        cancelExit.addEventListener('click', () => {
+            exitModal.classList.remove('show');
+        });
+
+        confirmExit.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettings = document.getElementById('close-settings');
+
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.classList.add('show');
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsModal.classList.remove('show');
+        });
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+
+        document.getElementById('play-btn').addEventListener('click', () => {
+            if (!gameState.selectedCard) {
+                alert('请先选择一张牌');
+                return;
+            }
+            gameState.selectedCard.classList.remove('selected');
+            gameState.selectedCard = null;
+        });
+
+        document.getElementById('sound-btn').addEventListener('click', () => {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById('sound-btn').textContent = gameState.soundEnabled ? '🔊' : '🔇';
+        });
+
+        const handScroll = document.getElementById('hand-scroll');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        handScroll.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - handScroll.offsetLeft;
+            scrollLeft = handScroll.scrollLeft;
+        });
+
+        handScroll.addEventListener('mouseleave', () => isDown = false);
+        handScroll.addEventListener('mouseup', () => isDown = false);
+        handScroll.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - handScroll.offsetLeft;
+            const walk = (x - startX) * 2;
+            handScroll.scrollLeft = scrollLeft - walk;
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            connectWebSocket();
+        });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+</body>
+</html>

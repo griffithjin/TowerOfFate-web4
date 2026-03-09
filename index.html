@@ -1012,13 +1012,49 @@
             showToast('🔗 正在连接 OKX Wallet...');
 
             try {
-                // Check if OKX wallet is installed
-                if (typeof window.okxwallet === 'undefined') {
-                    showToast('❌ 未检测到 OKX Wallet');
-                    setTimeout(() => {
-                        window.open('https://www.okx.com/web3', '_blank');
-                    }, 1500);
-                    return;
+                // Check for OKX wallet in multiple ways
+                let okxProvider = window.okxwallet || window.$okxwallet;
+
+                // Try to detect by checking ethereum providers
+                if (!okxProvider && window.ethereum) {
+                    if (window.ethereum.isOKExWallet || window.ethereum.isOKXWallet) {
+                        okxProvider = window.ethereum;
+                    }
+                }
+
+                // Check if any ethereum provider exists
+                if (!okxProvider && !window.ethereum) {
+                    // Try to open OKX app via deep link on mobile
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        showToast('📱 正在唤起 OKX Wallet...');
+                        // Deep link to OKX app
+                        const currentUrl = encodeURIComponent(window.location.href);
+                        window.location.href = 'okx://wallet/dapp?url=' + currentUrl;
+
+                        // Fallback after 2 seconds
+                        setTimeout(() => {
+                            if (!walletConnected) {
+                                const goToStore = confirm('未检测到 OKX Wallet，是否前往下载？');
+                                if (goToStore) {
+                                    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                                        window.open('https://apps.apple.com/app/okx-buy-bitcoin-btc-crypto/id1327268470', '_blank');
+                                    } else {
+                                        window.open('https://play.google.com/store/apps/details?id=com.okinc.okex.gp', '_blank');
+                                    }
+                                }
+                            }
+                        }, 2000);
+                        return;
+                    } else {
+                        // Desktop
+                        showToast('❌ 请在手机OKX APP内打开此页面');
+                        const goToDownload = confirm('请在OKX Wallet APP内打开此页面\n是否前往下载OKX？');
+                        if (goToDownload) {
+                            window.open('https://www.okx.com/download', '_blank');
+                        }
+                        return;
+                    }
                 }
 
                 // Request connection
@@ -1058,13 +1094,42 @@
             showToast('🔗 正在连接币安钱包...');
 
             try {
-                // Check if Binance Chain wallet is installed
-                if (typeof window.BinanceChain === 'undefined') {
-                    showToast('❌ 未检测到币安钱包');
-                    setTimeout(() => {
-                        window.open('https://www.bnbchain.org/en/binance-wallet', '_blank');
-                    }, 1500);
-                    return;
+                // Check for Binance wallet in multiple ways
+                let binanceProvider = window.BinanceChain || window.binancewallet;
+
+                // Check if any provider exists
+                if (!binanceProvider) {
+                    // Try to open Binance app via deep link on mobile
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        showToast('📱 正在唤起 币安钱包...');
+                        // Deep link to Binance Wallet
+                        const currentUrl = encodeURIComponent(window.location.href);
+                        window.location.href = 'bnc://app.binance.com/dapp?url=' + currentUrl;
+
+                        // Fallback after 2 seconds
+                        setTimeout(() => {
+                            if (!walletConnected) {
+                                const goToStore = confirm('未检测到 币安钱包，是否前往下载？');
+                                if (goToStore) {
+                                    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                                        window.open('https://apps.apple.com/app/binance-buy-bitcoin-crypto/id1436799971', '_blank');
+                                    } else {
+                                        window.open('https://play.google.com/store/apps/details?id=com.binance.dev', '_blank');
+                                    }
+                                }
+                            }
+                        }, 2000);
+                        return;
+                    } else {
+                        // Desktop
+                        showToast('❌ 请在手机币安APP内打开此页面');
+                        const goToDownload = confirm('请在币安Wallet APP内打开此页面\n是否前往下载币安钱包？');
+                        if (goToDownload) {
+                            window.open('https://www.binance.com/en/download', '_blank');
+                        }
+                        return;
+                    }
                 }
 
                 // Request connection
