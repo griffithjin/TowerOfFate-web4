@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命运塔锦标赛 - 明信片设计预览</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Noto+Serif+SC:wght@400;700;900&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', 'Playfair Display', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            background: linear-gradient(90deg, #FFD700, #FFA500, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            letter-spacing: 3px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .postcard-section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid;
+        }
+
+        .section-title.gold {
+            border-color: #FFD700;
+        }
+
+        .section-title.silver {
+            border-color: #C0C0C0;
+        }
+
+        .section-title.bronze {
+            border-color: #CD7F32;
+        }
+
+        .rank-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 900;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .rank-badge.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FFD700);
+            color: #1a1a2e;
+        }
+
+        .rank-badge.silver {
+            background: linear-gradient(135deg, #E8E8E8, #C0C0C0, #A9A9A9);
+            color: #1a1a2e;
+        }
+
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, #CD7F32, #8B4513, #A0522D);
+            color: #fff;
+        }
+
+        .section-title h2 {
+            font-size: 1.8rem;
+        }
+
+        .section-title.gold h2 {
+            color: #FFD700;
+        }
+
+        .section-title.silver h2 {
+            color: #C0C0C0;
+        }
+
+        .section-title.bronze h2 {
+            color: #CD7F32;
+        }
+
+        .postcard-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+        }
+
+        .postcard {
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 3/2;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+            margin: 0 auto;
+        }
+
+        /* 正面样式 */
+        .postcard-front {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .postcard-front.gold {
+            background: linear-gradient(180deg, #0a1628 0%, #1a3a5c 50%, #0a1628 100%);
+        }
+
+        .postcard-front.silver {
+            background: linear-gradient(180deg, #1a1a2e 0%, #2d2d44 50%, #1a1a2e 100%);
+        }
+
+        .postcard-front.bronze {
+            background: linear-gradient(180deg, #2a1810 0%, #4a2c1a 50%, #2a1810 100%);
+        }
+
+        .sky-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 100px;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(30px) translateY(-10px); }
+        }
+
+        .sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        .tower-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .crown {
+            font-size: 3rem;
+            margin-bottom: -10px;
+            z-index: 20;
+            filter: drop-shadow(0 0 10px rgba(255,215,0,0.8));
+            animation: crown-glow 2s infinite alternate;
+        }
+
+        @keyframes crown-glow {
+            from { filter: drop-shadow(0 0 5px rgba(255,215,0,0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(255,215,0,1)); }
+        }
+
+        .tower {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 金色塔 */
+        .tower-gold {
+            filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
+        }
+
+        .tower-gold .spire {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 60px solid #FFD700;
+            position: relative;
+        }
+
+        .tower-gold .spire::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -5px;
+            width: 10px;
+            height: 20px;
+            background: linear-gradient(180deg, #FFD700, #FFA500);
+            border-radius: 2px;
+        }
+
+        .tower-gold .level {
+            background: linear-gradient(90deg, #B8860B, #FFD700, #FFA500, #FFD700, #B8860B);
+            border: 2px solid #FFA500;
+            margin: 2px 0;
+            position: relative;
+        }
+
+        .tower-gold .level::before,
+        .tower-gold .level::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 8px;
+            height: 8px;
+            background: #FFF;
+            border-radius: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 0 5px #FFD700;
+        }
+
+        .tower-gold .level::before { left: 10px; }
+        .tower-gold .level::after { right: 10px; }
+
+        .tower-gold .l1 { width: 180px; height: 25px; }
+        .tower-gold .l2 { width: 160px; height: 22px; }
+        .tower-gold .l3 { width: 145px; height: 20px; }
+        .tower-gold .l4 { width: 130px; height: 18px; }
+        .tower-gold .l5 { width: 115px; height: 16px; }
+        .tower-gold .l6 { width: 100px; height: 15px; }
+        .tower-gold .l7 { width: 85px; height: 14px; }
+        .tower-gold .l8 { width: 70px; height: 13px; }
+        .tower-gold .l9 { width: 58px; height: 12px; }
+        .tower-gold .l10 { width: 48px; height: 11px; }
+        .tower-gold .l11 { width: 40px; height: 10px; }
+        .tower-gold .l12 { width: 32px; height: 9px; }
+        .tower-gold .l13 { width: 25px; height: 8px; }
+
+        .tower-gold .face {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .tower-gold .eye {
+            width: 20px;
+            height: 20px;
+            background: #FFF;
+            border-radius: 50%;
+            position: relative;
+            border: 3px solid #333;
+        }
+
+        .tower-gold .eye::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: #333;
+            border-radius: 50%;
+        }
+
+        .tower-gold .cheek {
+            position: absolute;
+            top: 55%;
+            width: 15px;
+            height: 10px;
+            background: rgba(255, 182, 193, 0.6);
+            border-radius: 50%;
+        }
+
+        .tower-gold .cheek-left { left: 35%; }
+        .tower-gold .cheek-right { right: 35%; }
+
+        .tower-gold .smile {
+            position: absolute;
+            bottom: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 15px;
+            border-bottom: 3px solid #333;
+            border-radius: 0 0 30px 30px;
+        }
+
+        /* 银色塔 */
+        .tower-silver {
+            filter: drop-shadow(0 0 20px rgba(192,192,192,0.4));
+        }
+
+        .tower-silver .spire-top {
+            display: flex;
+            gap: 40px;
+            margin-bottom: -10px;
+        }
+
+        .tower-silver .spire {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 50px solid #C0C0C0;
+        }
+
+        .tower-silver .bridge {
+            width: 80px;
+            height: 15px;
+            background: linear-gradient(90deg, #A9A9A9, #E8E8E8, #A9A9A9);
+            margin: -5px 0 10px;
+            border-radius: 3px;
+        }
+
+        .tower-silver .twin-section {
+            display: flex;
+            gap: 30px;
+        }
+
+        .tower-silver .tower-half {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tower-silver .level {
+            background: linear-gradient(90deg, #A9A9A9, #E8E8E8, #C0C0C0, #E8E8E8, #A9A9A9);
+            border: 1px solid #808080;
+            margin: 2px 0;
+        }
+
+        .tower-silver .l1 { width: 70px; height: 35px; }
+        .tower-silver .l2 { width: 60px; height: 30px; }
+        .tower-silver .l3 { width: 50px; height: 25px; }
+        .tower-silver .l4 { width: 42px; height: 20px; }
+        .tower-silver .l5 { width: 35px; height: 18px; }
+        .tower-silver .l6 { width: 28px; height: 15px; }
+        .tower-silver .l7 { width: 22px; height: 12px; }
+        .tower-silver .l8 { width: 18px; height: 10px; }
+
+        .tower-silver .face {
+            position: absolute;
+            top: 50%;
+            display: flex;
+            gap: 60px;
+            z-index: 20;
+        }
+
+        .tower-silver .eye {
+            width: 16px;
+            height: 16px;
+            background: #FFF;
+            border-radius: 50%;
+            border: 2px solid #4B0082;
+            position: relative;
+        }
+
+        .tower-silver .eye::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 3px;
+            width: 6px;
+            height: 6px;
+            background: #4B0082;
+            border-radius: 50%;
+        }
+
+        .tower-silver .cheek {
+            position: absolute;
+            top: 55%;
+            width: 12px;
+            height: 8px;
+            background: rgba(255, 182, 193, 0.5);
+            border-radius: 50%;
+        }
+
+        /* 铜色塔 */
+        .tower-bronze {
+            filter: drop-shadow(0 0 15px rgba(205,127,50,0.4));
+        }
+
+        .tower-bronze .pyramid-group {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .tower-bronze .pyramid {
+            position: relative;
+        }
+
+        .tower-bronze .pyramid-main {
+            width: 0;
+            height: 0;
+            border-left: 80px solid transparent;
+            border-right: 80px solid transparent;
+            border-bottom: 140px solid #CD7F32;
+            position: relative;
+        }
+
+        .tower-bronze .pyramid-main::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -40px;
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 140px solid #B87333;
+        }
+
+        .tower-bronze .pyramid-side {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid #A0522D;
+            margin: 0 -20px;
+        }
+
+        .tower-bronze .face {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 20;
+        }
+
+        .tower-bronze .eye {
+            width: 18px;
+            height: 18px;
+            background: #FFF;
+            border-radius: 50%;
+            border: 2px solid #8B4513;
+            display: inline-block;
+            margin: 0 8px;
+            position: relative;
+        }
+
+        .tower-bronze .eye::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 4px;
+            width: 7px;
+            height: 7px;
+            background: #8B4513;
+            border-radius: 50%;
+        }
+
+        .tower-bronze .cheek {
+            position: absolute;
+            top: 45%;
+            width: 14px;
+            height: 10px;
+            background: rgba(255, 182, 193, 0.5);
+            border-radius: 50%;
+        }
+
+        .tower-bronze .cheek-left { left: 25%; }
+        .tower-bronze .cheek-right { right: 25%; }
+
+        .rank-label {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            padding: 8px 30px;
+            border-radius: 30px;
+            z-index: 20;
+        }
+
+        .rank-label.gold {
+            background: linear-gradient(90deg, #B8860B, #FFD700, #FFA500);
+            color: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.5);
+        }
+
+        .rank-label.silver {
+            background: linear-gradient(90deg, #A9A9A9, #E8E8E8, #C0C0C0);
+            color: #1a1a2e;
+            box-shadow: 0 4px 20px rgba(192,192,192,0.4);
+        }
+
+        .rank-label.bronze {
+            background: linear-gradient(90deg, #8B4513, #CD7F32, #A0522D);
+            color: #FFF;
+            box-shadow: 0 4px 20px rgba(205,127,50,0.4);
+        }
+
+        /* 背面样式 */
+        .postcard-back {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .postcard-back.gold {
+            background: linear-gradient(135deg, #FFF8DC 0%, #FFFACD 100%);
+            color: #1a1a2e;
+        }
+
+        .postcard-back.silver {
+            background: linear-gradient(135deg, #F5F5F5 0%, #FFFFFF 100%);
+            color: #1a1a2e;
+        }
+
+        .postcard-back.bronze {
+            background: linear-gradient(135deg, #FAEBD7 0%, #FFEFD5 100%);
+            color: #1a1a2e;
+        }
+
+        .back-border {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 3px solid;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+
+        .back-border.gold {
+            border-color: #FFD700;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,215,0,0.05) 10px,
+                rgba(255,215,0,0.05) 20px
+            );
+        }
+
+        .back-border.silver {
+            border-color: #C0C0C0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 5px,
+                rgba(192,192,192,0.05) 5px,
+                rgba(192,192,192,0.05) 10px
+            );
+        }
+
+        .back-border.bronze {
+            border-color: #CD7F32;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 5px,
+                rgba(205,127,50,0.05) 5px,
+                rgba(205,127,50,0.05) 10px
+            );
+        }
+
+        .back-header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-header h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        .back-header .en {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        .back-content {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .message-area {
+            flex: 1;
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding-right: 15px;
+        }
+
+        .tower-desc {
+            font-size: 0.75rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 5px;
+            font-style: italic;
+        }
+
+        .info-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .field label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .field .line {
+            height: 25px;
+            border-bottom: 1px solid rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: rgba(0,0,0,0.4);
+        }
+
+        .address-area {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .rank-display {
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .rank-display.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+        }
+
+        .rank-display.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+            color: #1a1a2e;
+        }
+
+        .rank-display.bronze {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: #FFF;
+        }
+
+        .rank-display .rank-num {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .rank-display .rank-text {
+            font-size: 0.6rem;
+            letter-spacing: 1px;
+        }
+
+        .qr-placeholder {
+            width: 80px;
+            height: 80px;
+            border: 2px dashed;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .qr-placeholder.gold { border-color: #FFD700; color: #B8860B; }
+        .qr-placeholder.silver { border-color: #C0C0C0; color: #808080; }
+        .qr-placeholder.bronze { border-color: #CD7F32; color: #8B4513; }
+
+        .back-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            font-size: 0.6rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform: translate(-50%, 50%) rotate(-15deg);
+            font-size: 4rem;
+            opacity: 0.03;
+            pointer-events: none;
+            font-weight: 900;
+        }
+
+        /* 翻转效果 */
+        .flip-container {
+            perspective: 1000px;
+        }
+
+        .flipper {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            position: relative;
+        }
+
+        .flip-container:hover .flipper {
+            transform: rotateY(180deg);
+        }
+
+        .front, .back {
+            backface-visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .back {
+            transform: rotateY(180deg);
+        }
+
+        .label {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .specs {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
+        .specs h3 {
+            margin-bottom: 15px;
+            color: #FFD700;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .spec-item {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .spec-item h4 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: #a0a0a0;
+        }
+
+        .spec-item p, .spec-item li {
+            font-size: 0.8rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        .spec-item ul {
+            padding-left: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .postcard-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .back-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .message-area {
+                border-right: none;
+                border-bottom: 1px solid rgba(0,0,0,0.1);
+                padding-right: 0;
+                padding-bottom: 10px;
+            }
+
+            .address-area {
+                width: 100%;
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TOWER OF FATE</h1>
+        <p class="subtitle">命运塔锦标赛 · 明信片设计预览</p>
+    </div>
+
+    <div class="container">
+        <!-- 金色冠军明信片 -->
+        <div class="postcard-section">
+            <div class="section-title gold">
+                <div class="rank-badge gold">1</div>
+                <h2>首登者·金 / First Ascendant - Gold</h2>
+            </div>
+            <div class="postcard-wrapper">
+                <!-- 正面 -->
+                <div class="flip-container">
+                    <div class="postcard">
+                        <div class="postcard-front gold">
+                            <div class="sky-background">
+                                <div class="cloud" style="width: 80px; height: 30px; top: 10%; left: 10%;"></div>
+                                <div class="cloud" style="width: 60px; height: 25px; top: 20%; right: 15%;"></div>
+                                <div class="cloud" style="width: 100px; height: 35px; top: 5%; right: 30%;"></div>
+                            </div>
+                            <div class="sparkles">
+                                <div class="sparkle" style="background: #FFD700; top: 20%; left: 20%; animation-delay: 0s;"></div>
+                                <div class="sparkle" style="background: #FFA500; top: 30%; right: 25%; animation-delay: 0.5s;"></div>
+                                <div class="sparkle" style="background: #FFD700; top: 15%; left: 70%; animation-delay: 1s;"></div>
+                                <div class="sparkle" style="background: #FFA500; bottom: 30%; left: 15%; animation-delay: 1.5s;"></div>
+                                <div class="sparkle" style="background: #FFD700; bottom: 25%; right: 20%; animation-delay: 0.3s;"></div>
+                            </div>
+                            <div class="tower-container">
+                                <div class="crown">👑</div>
+                                <div class="tower tower-gold">
+                                    <div class="face">
+                                        <div class="eye"></div>
+                                        <div class="eye"></div>
+                                    </div>
+                                    <div class="cheek cheek-left"></div>
+                                    <div class="cheek cheek-right"></div>
+                                    <div class="smile"></div>
+                                    <div class="spire"></div>
+                                    <div class="level l13"></div>
+                                    <div class="level l12"></div>
+                                    <div class="level l11"></div>
+                                    <div class="level l10"></div>
+                                    <div class="level l9"></div>
+                                    <div class="level l8"></div>
+                                    <div class="level l7"></div>
+                                    <div class="level l6"></div>
+                                    <div class="level l5"></div>
+                                    <div class="level l4"></div>
+                                    <div class="level l3"></div>
+                                    <div class="level l2"></div>
+                                    <div class="level l1"></div>
+                                </div>
+                            </div>
+                            <div class="rank-label gold">CHAMPION</div>
+                        </div>
+                    </div>
+                    <p class="label">正面 Front - 13层金色荣耀塔</p>
+                </div>
+
+                <!-- 背面 -->
+                <div class="flip-container">
+                    <div class="postcard">
+                        <div class="postcard-back gold">
+                            <div class="back-border gold"></div>
+                            <div class="watermark">TOWER OF FATE</div>
+                            <div class="back-header">
+                                <h3>命运塔锦标赛</h3>
+                                <div class="en">TOWER OF FATE CHAMPIONSHIP</div>
+                            </div>
+                            <div class="back-content">
+                                <div class="message-area">
+                                    <div class="tower-desc">
+                                        这座13层金色塔楼象征着至高无上的荣耀，只有真正的冠军才能登顶。每一层都铭刻着胜利者的勇气与智慧。
+                                    </div>
+                                    <div class="info-fields">
+                                        <div class="field">
+                                            <label>获奖者 Champion</label>
+                                            <div class="line">[玩家名称]</div>
+                                        </div>
+                                        <div class="field">
+                                            <label>锦标赛 Tournament</label>
+                                            <div class="line">[锦标赛名称]</div>
+                                        </div>
+                                        <div class="field">
+                                            <label>日期 Date</label>
+                                            <div class="line">[YYYY-MM-DD]</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="address-area">
+                                    <div class="rank-display gold">
+                                        <div class="rank-num">1st</div>
+                                        <div class="rank-text">首登者·金</div>
+                                    </div>
+                                    <div class="qr-placeholder gold">
+                                        QR<br>CODE
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="back-footer">
+                                <span>toweroffate.game</span>
+                                <span>Season 1 · 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="label">背面 Back - 冠军信息卡</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 银色亚军明信片 -->
+        <div class="postcard-section">
+            <div class="section-title silver">
+                <div class="rank-badge silver">2</div>
+                <h2>次登者·银 / Second Ascendant - Silver</h2>
+            </div>
+            <div class="postcard-wrapper">
+                <!-- 正面 -->
+                <div class="flip-container">
+                    <div class="postcard">
+                        <div class="postcard-front silver">
+                            <div class="sky-background">
+                                <div class="cloud" style="width: 70px; height: 25px; top: 15%; left: 5%;"></div>
+                                <div class="cloud" style="width: 90px; height: 30px; top: 8%; right: 10%;"></div>
+                                <div class="cloud" style="width: 50px; height: 20px; top: 25%; left: 80%;"></div>
+                            </div>
+                            <div class="sparkles">
+                                <div class="sparkle" style="background: #E8E8E8; top: 25%; left: 15%; animation-delay: 0.2s;"></div>
+                                <div class="sparkle" style="background: #C0C0C0; top: 35%; right: 20%; animation-delay: 0.7s;"></div>
+                                <div class="sparkle" style="background: #E8E8E8; top: 10%; left: 60%; animation-delay: 1.2s;"></div>
+                            </div>
+                            <div class="tower-container">
+                                <div class="tower tower-silver">
+                                    <div class="spire-top">
+                                        <div class="spire"></div>
+                                        <div class="spire"></div>
+                                    </div>
+                                    <div class="bridge"></div>
+                                    <div class="face">
+                                        <div class="eye"></div>
+                                        <div class="eye"></div>
+                                    </div>
+                                    <div class="twin-section">
+                                        <div class="tower-half">
+                                            <div class="level l8"></div>
+                                            <div class="level l7"></div>
+                                            <div class="level l6"></div>
+                                            <div class="level l5"></div>
+                                            <div class="level l4"></div>
+                                            <div class="level l3"></div>
+                                            <div class="level l2"></div>
+                                            <div class="level l1"></div>
+                                        </div>
+                                        <div class="tower-half">
+                                            <div class="level l8"></div>
+                                            <div class="level l7"></div>
+                                            <div class="level l6"></div>
+                                            <div class="level l5"></div>
+                                            <div class="level l4"></div>
+                                            <div class="level l3"></div>
+                                            <div class="level l2"></div>
+                                            <div class="level l1"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rank-label silver">RUNNER-UP</div>
+                        </div>
+                    </div>
+                    <p class="label">正面 Front - 8层银色双子塔</p>
+                </div>
+
+                <!-- 背面 -->
+                <div class="flip-container">
+                    <div class="postcard">
+                        <div class="postcard-back silver">
+                            <div class="back-border silver"></div>
+                            <div class="watermark">TOWER OF FATE</div>
+                            <div class="back-header">
+                                <h3>命运塔锦标赛</h3>
+                                <div class="en">TOWER OF FATE CHAMPIONSHIP</div>
+                            </div>
+                            <div class="back-content">
+                                <div class="message-area">
+                                    <div class="tower-desc">
+                                        这座8层银色塔楼代表着优雅与坚韧，双塔相连象征着合作与平衡。是次登者的永恒见证。
+                                    </div>
+                                    <div class="info-fields">
+                                        <div class="field">
+                                            <label>获奖者 Champion</label>
+                                            <div class="line">[玩家名称]</div>
+                                        </div>
+                                        <div class="field">
+                                            <label>锦标赛 Tournament</label>
+                                            <div class="line">[锦标赛名称]</div>
+                                        </div>
+                                        <div class="field">
+                                            <label>日期 Date</label>
+                                            <div class="line">[YYYY-MM-DD]</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="address-area">
+                                    <div class="rank-display silver">
+                                        <div class="rank-num">2nd</div>
+                                        <div class="rank-text">次登者·银</div>
+                                    </div>
+                                    <div class="qr-placeholder silver">
+                                        QR<br>CODE
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="back-footer">
+                                <span>toweroffate.game</span>
+                                <span>Season 1 · 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="label">背面 Back - 亚军信息卡</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 铜色季军明信片 -->
+        <div class="postcard-section">
+            <div class="section-title bronze">
+                <div class="rank-badge bronze">3</div>
+                <h2>三登者·铜 / Third Ascendant - Bronze</h2>
+            </div>
+            <div class="postcard-wrapper">
+                <!-- 正面 -->
+                <div class="flip-container">
+                    <div class="postcard">
+                        <div class="postcard-front bronze">
+                            <div class="sky-background">
+                                <div class="cloud" style="width: 85px; height: 32px; top: 12%; left: 8%;"></div>
+                                <div class="cloud" style="width: 65px; height: 28px; top: 18%; right: 12%;"></div>
+                            </div>
+                            <div class="sparkles">
+                                <div class="sparkle" style="background: #CD7F32; top: 30%; left: 20%; animation-delay: 0.4s;"></div>
+                                <div class="sparkle" style="background: #FFA500; top: 20%; right: 30%; animation-delay: 0.9s;"></div>
+                                <div class="sparkle" style="background: #CD7F32; bottom: 35%; right: 15%; animation-delay: 1.4s;"></div>
+                            </div>
+                            <div class="tower-container">
+                                <div class="tower tower-bronze">
+                                    <div class="pyramid-group">
+                                        <div class="pyramid pyramid-side" style="border-bottom-color: #A0522D;"></div>
+                                        <div class="pyramid pyramid-main">
+                                            <div class="face">
+                                                <div class="eye"></div>
+                                                <div class="eye"></div>
+                                            </div>
+                                            <div class="cheek cheek-left"></div>
+                                            <div class="cheek cheek-right"></div>
+                                        </div>
+                                        <div class="pyramid pyramid-side" style="border-bottom-color: #8B4513;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rank-label bronze">THIRD PLACE</div>
+                        </div>
+                    </div>
+                    <p class="label">正面 Front - 4层铜色金字塔</p>
+                </div>
+
+                <!-- 背面 -->
+                <div class="flip-container">
+                    <div class="postcard">
+                        <div class="postcard-back bronze">
+                            <div class="back-border bronze"></div>
+                            <div class="watermark">TOWER OF FATE</div>
+                            <div class="back-header">
+                                <h3>命运塔锦标赛</h3>
+                                <div class="en">TOWER OF FATE CHAMPIONSHIP</div>
+                            </div>
+                            <div class="back-content">
+                                <div class="message-area">
+                                    <div class="tower-desc">
+                                        这座4层铜色塔楼象征着坚实的基础，如金字塔般稳固。是成功之路的第一步，值得骄傲。
+                                    </div>
+                                    <div class="info-fields">
+                                        <div class="field">
+                                            <label>获奖者 Champion</label>
+                                            <div class="line">[玩家名称]</div>
+                                        </div>
+                                        <div class="field">
+                                            <label>锦标赛 Tournament</label>
+                                            <div class="line">[锦标赛名称]</div>
+                                        </div>
+                                        <div class="field">
+                                            <label>日期 Date</label>
+                                            <div class="line">[YYYY-MM-DD]</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="address-area">
+                                    <div class="rank-display bronze">
+                                        <div class="rank-num">3rd</div>
+                                        <div class="rank-text">三登者·铜</div>
+                                    </div>
+                                    <div class="qr-placeholder bronze">
+                                        QR<br>CODE
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="back-footer">
+                                <span>toweroffate.game</span>
+                                <span>Season 1 · 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="label">背面 Back - 季军信息卡</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 规格说明 -->
+        <div class="specs">
+            <h3>印刷规格 / Printing Specifications</h3>
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <h4>尺寸规格 Dimensions</h4>
+                    <ul>
+                        <li>标准尺寸: 148mm x 105mm (A6)</li>
+                        <li>比例: 3:2</li>
+                        <li>出血: 每边 +3mm</li>
+                        <li>安全边距: 距离边缘 5mm</li>
+                    </ul>
+                </div>
+                <div class="spec-item">
+                    <h4>材质工艺 Materials</h4>
+                    <ul>
+                        <li>纸张: 350gsm 艺术卡纸</li>
+                        <li>正面: 高光泽UV涂层</li>
+                        <li>背面: 哑光质感，便于书写</li>
+                        <li>特殊: 金属质感覆膜</li>
+                    </ul>
+                </div>
+                <div class="spec-item">
+                    <h4>色彩配置 Colors</h4>
+                    <ul>
+                        <li>金色: Pantone 871 C / CMYK 0/15/65/20</li>
+                        <li>银色: Pantone 877 C / CMYK 0/0/0/25</li>
+                        <li>铜色: Pantone 876 C / CMYK 0/35/65/30</li>
+                    </ul>
+                </div>
+                <div class="spec-item">
+                    <h4>特殊效果 Special Effects</h4>
+                    <ul>
+                        <li>金色: 烫金压印 + 皇冠浮雕</li>
+                        <li>银色: 金属油墨 + 局部UV</li>
+                        <li>铜色: 铜金属油墨 + 纹理上光</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

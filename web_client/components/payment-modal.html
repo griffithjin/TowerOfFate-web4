@@ -1,0 +1,1080 @@
+<!-- Tower of Fate - Payment Modal Component -->
+<!-- Cryptocurrency payment interface with 8 supported currencies -->
+
+<style>
+  .payment-modal {
+    --payment-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --payment-card-bg: rgba(255, 255, 255, 0.05);
+    --payment-border: rgba(255, 255, 255, 0.1);
+    --payment-primary: #ff6b6b;
+    --payment-primary-hover: #ff5252;
+    --payment-text: #ffffff;
+    --payment-text-muted: rgba(255, 255, 255, 0.6);
+    --payment-success: #4ade80;
+    --payment-warning: #fbbf24;
+    --payment-error: #f87171;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .payment-modal.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .payment-modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+  }
+
+  .payment-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    background: var(--payment-bg);
+    border: 1px solid var(--payment-border);
+    border-radius: 20px;
+    overflow: hidden;
+    transform: scale(0.95) translateY(20px);
+    transition: all 0.3s ease;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .payment-modal.active .payment-modal-content {
+    transform: scale(1) translateY(0);
+  }
+
+  /* Header */
+  .payment-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--payment-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .payment-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--payment-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .payment-close {
+    background: none;
+    border: none;
+    color: var(--payment-text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .payment-close:hover {
+    background: var(--payment-card-bg);
+    color: var(--payment-text);
+  }
+
+  /* Body */
+  .payment-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(90vh - 140px);
+  }
+
+  /* Amount Section */
+  .payment-amount-section {
+    margin-bottom: 24px;
+  }
+
+  .payment-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--payment-text-muted);
+    margin: 0 0 12px;
+  }
+
+  .payment-amount-input-wrapper {
+    background: var(--payment-card-bg);
+    border: 1px solid var(--payment-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .payment-amount-input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--payment-text);
+    font-size: 28px;
+    font-weight: 700;
+    outline: none;
+    width: 100%;
+  }
+
+  .payment-amount-input::placeholder {
+    color: var(--payment-text-muted);
+  }
+
+  .payment-amount-currency {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--payment-primary);
+    padding: 8px 16px;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 8px;
+  }
+
+  .payment-amount-usd {
+    font-size: 14px;
+    color: var(--payment-text-muted);
+    margin-top: 8px;
+  }
+
+  /* Currency Grid */
+  .payment-currency-section {
+    margin-bottom: 24px;
+  }
+
+  .payment-currency-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .payment-currency-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    background: var(--payment-card-bg);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .payment-currency-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .payment-currency-btn.active {
+    border-color: var(--payment-primary);
+    background: rgba(255, 107, 107, 0.1);
+  }
+
+  .payment-currency-icon {
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .payment-currency-symbol {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--payment-text);
+  }
+
+  .payment-currency-name {
+    font-size: 10px;
+    color: var(--payment-text-muted);
+  }
+
+  /* Payment Details */
+  .payment-details {
+    background: var(--payment-card-bg);
+    border: 1px solid var(--payment-border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .payment-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--payment-border);
+  }
+
+  .payment-detail-row:last-child {
+    border-bottom: none;
+  }
+
+  .payment-detail-label {
+    font-size: 13px;
+    color: var(--payment-text-muted);
+  }
+
+  .payment-detail-value {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--payment-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .payment-detail-value .copy-btn {
+    background: none;
+    border: none;
+    color: var(--payment-text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .payment-detail-value .copy-btn:hover {
+    color: var(--payment-primary);
+    background: rgba(255, 107, 107, 0.1);
+  }
+
+  /* Address Display */
+  .payment-address-section {
+    margin-bottom: 24px;
+  }
+
+  .payment-address-box {
+    background: var(--payment-card-bg);
+    border: 1px solid var(--payment-border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .payment-address-qr {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #333;
+    flex-shrink: 0;
+  }
+
+  .payment-address-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .payment-address-label {
+    font-size: 11px;
+    color: var(--payment-text-muted);
+    margin-bottom: 4px;
+  }
+
+  .payment-address-value {
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
+    color: var(--payment-text);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .payment-address-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .payment-address-btn {
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--payment-border);
+    border-radius: 8px;
+    color: var(--payment-text);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .payment-address-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--payment-primary);
+  }
+
+  .payment-address-btn.copied {
+    background: rgba(74, 222, 128, 0.1);
+    border-color: var(--payment-success);
+    color: var(--payment-success);
+  }
+
+  /* Warning Box */
+  .payment-warning {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+  }
+
+  .payment-warning-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .payment-warning-content h4 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--payment-warning);
+  }
+
+  .payment-warning-content p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--payment-text-muted);
+    line-height: 1.5;
+  }
+
+  /* Footer */
+  .payment-footer {
+    padding: 20px 24px;
+    border-top: 1px solid var(--payment-border);
+    display: flex;
+    gap: 12px;
+  }
+
+  .payment-btn {
+    flex: 1;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .payment-btn-secondary {
+    background: var(--payment-card-bg);
+    color: var(--payment-text);
+    border: 1px solid var(--payment-border);
+  }
+
+  .payment-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .payment-btn-primary {
+    background: linear-gradient(135deg, var(--payment-primary) 0%, var(--payment-primary-hover) 100%);
+    color: white;
+  }
+
+  .payment-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+  }
+
+  .payment-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Status States */
+  .payment-status {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .payment-status-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 20px;
+  }
+
+  .payment-status-icon.pending {
+    background: rgba(251, 191, 36, 0.1);
+    animation: payment-pulse 2s infinite;
+  }
+
+  .payment-status-icon.success {
+    background: rgba(74, 222, 128, 0.1);
+  }
+
+  .payment-status-icon.error {
+    background: rgba(248, 113, 113, 0.1);
+  }
+
+  @keyframes payment-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+  }
+
+  .payment-status h3 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: var(--payment-text);
+  }
+
+  .payment-status p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: var(--payment-text-muted);
+  }
+
+  .payment-tx-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: var(--payment-card-bg);
+    border: 1px solid var(--payment-border);
+    border-radius: 8px;
+    color: var(--payment-text);
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .payment-tx-link:hover {
+    border-color: var(--payment-primary);
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .payment-currency-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .payment-currency-btn {
+      padding: 10px 4px;
+    }
+
+    .payment-currency-icon {
+      font-size: 24px;
+    }
+
+    .payment-currency-symbol {
+      font-size: 11px;
+    }
+
+    .payment-address-box {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .payment-address-qr {
+      width: 120px;
+      height: 120px;
+    }
+  }
+</style>
+
+<!-- Payment Modal -->
+<div class="payment-modal" id="paymentModal">
+  <div class="payment-modal-overlay" id="paymentModalOverlay"></div>
+
+  <div class="payment-modal-content">
+    <!-- Header -->
+    <div class="payment-header">
+      <h2>
+        <span>💳</span>
+        <span id="paymentTitle">Make Payment</span>
+      </h2>
+      <button class="payment-close" id="paymentCloseBtn">&times;</button>
+    </div>
+
+    <!-- Body -->
+    <div class="payment-body" id="paymentBody">
+      <!-- Payment Form -->
+      <div id="paymentForm">
+        <!-- Amount -->
+        <div class="payment-amount-section">
+          <h3 class="payment-label">Amount</h3>
+          <div class="payment-amount-input-wrapper">
+            <input
+              type="number"
+              class="payment-amount-input"
+              id="paymentAmount"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+            >
+            <span class="payment-amount-currency" id="paymentCurrencyDisplay">USDT</span>
+          </div>
+          <div class="payment-amount-usd">≈ $<span id="paymentUsdValue">0.00</span> USD</div>
+        </div>
+
+        <!-- Currency Selection -->
+        <div class="payment-currency-section">
+          <h3 class="payment-label">Select Currency</h3>
+          <div class="payment-currency-grid">
+            <button class="payment-currency-btn active" data-currency="USDT" data-network="TRON">
+              <span class="payment-currency-icon">💵</span>
+              <span class="payment-currency-symbol">USDT</span>
+              <span class="payment-currency-name">TRON</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="BNB" data-network="BSC">
+              <span class="payment-currency-icon">🟡</span>
+              <span class="payment-currency-symbol">BNB</span>
+              <span class="payment-currency-name">BSC</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="ETH" data-network="Ethereum">
+              <span class="payment-currency-icon">💎</span>
+              <span class="payment-currency-symbol">ETH</span>
+              <span class="payment-currency-name">ETH</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="SOL" data-network="Solana">
+              <span class="payment-currency-icon">🟣</span>
+              <span class="payment-currency-symbol">SOL</span>
+              <span class="payment-currency-name">SOL</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="BTC" data-network="Bitcoin">
+              <span class="payment-currency-icon">🟠</span>
+              <span class="payment-currency-symbol">BTC</span>
+              <span class="payment-currency-name">BTC</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="MATIC" data-network="Polygon">
+              <span class="payment-currency-icon">🟪</span>
+              <span class="payment-currency-symbol">MATIC</span>
+              <span class="payment-currency-name">POLY</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="USDC" data-network="Ethereum">
+              <span class="payment-currency-icon">💲</span>
+              <span class="payment-currency-symbol">USDC</span>
+              <span class="payment-currency-name">Multi</span>
+            </button>
+            <button class="payment-currency-btn" data-currency="FATE" data-network="BSC">
+              <span class="payment-currency-icon">🎲</span>
+              <span class="payment-currency-symbol">FATE</span>
+              <span class="payment-currency-name">BSC</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Payment Address -->
+        <div class="payment-address-section">
+          <h3 class="payment-label">Payment Address</h3>
+          <div class="payment-address-box">
+            <div class="payment-address-qr" id="paymentQR">
+              QR Code
+            </div>
+            <div class="payment-address-info">
+              <div class="payment-address-label">Send to this address</div>
+              <div class="payment-address-value" id="paymentAddress">
+                TUKf5QXj8nvNhsqy2va8gCnRoG77wKVwwC
+              </div>
+            </div>
+          </div>
+          <div class="payment-address-actions">
+            <button class="payment-address-btn" id="paymentCopyAddress">
+              <span>📋</span> Copy Address
+            </button>
+            <button class="payment-address-btn" id="paymentValidateAddress">
+              <span>✓</span> Validate
+            </button>
+          </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="payment-warning">
+          <span class="payment-warning-icon">⚠️</span>
+          <div class="payment-warning-content">
+            <h4>Important</h4>
+            <p>Please verify the network before sending. Sending funds to the wrong network may result in permanent loss.</p>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div class="payment-details">
+          <div class="payment-detail-row">
+            <span class="payment-detail-label">Network</span>
+            <span class="payment-detail-value" id="paymentNetwork">TRON</span>
+          </div>
+          <div class="payment-detail-row">
+            <span class="payment-detail-label">Estimated Fee</span>
+            <span class="payment-detail-value" id="paymentFee">~$1.00</span>
+          </div>
+          <div class="payment-detail-row">
+            <span class="payment-detail-label">Processing Time</span>
+            <span class="payment-detail-value" id="paymentTime">~3-5 minutes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Views (Hidden by default) -->
+      <div class="payment-status" id="paymentStatusPending" style="display: none;">
+        <div class="payment-status-icon pending">⏳</div>
+        <h3>Processing Payment</h3>
+        <p>Please wait while we confirm your transaction...</p>
+      </div>
+
+      <div class="payment-status" id="paymentStatusSuccess" style="display: none;">
+        <div class="payment-status-icon success">✅</div>
+        <h3>Payment Successful!</h3>
+        <p>Your transaction has been confirmed.</p>
+        <a href="#" class="payment-tx-link" id="paymentTxLink" target="_blank">
+          <span>🔗</span> View on Explorer
+        </a>
+      </div>
+
+      <div class="payment-status" id="paymentStatusError" style="display: none;">
+        <div class="payment-status-icon error">❌</div>
+        <h3>Payment Failed</h3>
+        <p id="paymentErrorMessage">Something went wrong. Please try again.</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="payment-footer" id="paymentFooter">
+      <button class="payment-btn payment-btn-secondary" id="paymentCancelBtn">Cancel</button>
+      <button class="payment-btn payment-btn-primary" id="paymentConfirmBtn">
+        Confirm Payment
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Payment Modal Controller
+  const PaymentModal = {
+    modal: document.getElementById('paymentModal'),
+    overlay: document.getElementById('paymentModalOverlay'),
+    closeBtn: document.getElementById('paymentCloseBtn'),
+
+    // Payment configuration
+    paymentAddresses: {
+      USDT: { address: 'TUKf5QXj8nvNhsqy2va8gCnRoG77wKVwwC', network: 'TRON', decimals: 6 },
+      BNB: { address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df', network: 'BSC', decimals: 18 },
+      ETH: { address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df', network: 'Ethereum', decimals: 18 },
+      SOL: { address: 'BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN', network: 'Solana', decimals: 9 },
+      BTC: { address: 'bc1pnjg9z5el0xt3uzm82symufy3lm56x82vg75dv7xm4eqvvec6j45sx9xzs0', network: 'Bitcoin', decimals: 8 },
+      MATIC: { address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df', network: 'Polygon', decimals: 18 },
+      USDC: { address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df', network: 'Ethereum', decimals: 6 },
+      FATE: { address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df', network: 'BSC', decimals: 18 }
+    },
+
+    // Price data (would be fetched from API)
+    prices: {
+      USDT: 1.00,
+      USDC: 1.00,
+      BNB: 650,
+      ETH: 3800,
+      SOL: 145,
+      BTC: 68000,
+      MATIC: 0.75,
+      FATE: 0.10
+    },
+
+    currentCurrency: 'USDT',
+    currentAmount: 0,
+    isProcessing: false,
+
+    init() {
+      this.bindEvents();
+    },
+
+    bindEvents() {
+      // Close modal
+      this.closeBtn.addEventListener('click', () => this.close());
+      this.overlay.addEventListener('click', () => this.close());
+
+      // Currency selection
+      document.querySelectorAll('.payment-currency-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const currency = e.currentTarget.dataset.currency;
+          this.selectCurrency(currency);
+        });
+      });
+
+      // Amount input
+      const amountInput = document.getElementById('paymentAmount');
+      amountInput.addEventListener('input', (e) => {
+        this.currentAmount = parseFloat(e.target.value) || 0;
+        this.updateUsdValue();
+      });
+
+      // Copy address
+      document.getElementById('paymentCopyAddress').addEventListener('click', () => {
+        this.copyAddress();
+      });
+
+      // Validate address
+      document.getElementById('paymentValidateAddress').addEventListener('click', () => {
+        this.validateAddress();
+      });
+
+      // Cancel
+      document.getElementById('paymentCancelBtn').addEventListener('click', () => {
+        this.close();
+      });
+
+      // Confirm
+      document.getElementById('paymentConfirmBtn').addEventListener('click', () => {
+        this.confirmPayment();
+      });
+
+      // Listen for payment events
+      window.addEventListener('payment:created', (e) => {
+        this.onPaymentCreated(e.detail);
+      });
+
+      window.addEventListener('payment:confirmed', (e) => {
+        this.onPaymentConfirmed(e.detail);
+      });
+
+      window.addEventListener('payment:failed', (e) => {
+        this.onPaymentFailed(e.detail);
+      });
+    },
+
+    open(options = {}) {
+      this.modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Reset state
+      this.resetState();
+
+      // Set initial amount if provided
+      if (options.amount) {
+        document.getElementById('paymentAmount').value = options.amount;
+        this.currentAmount = options.amount;
+        this.updateUsdValue();
+      }
+
+      // Set currency if provided
+      if (options.currency) {
+        this.selectCurrency(options.currency);
+      }
+
+      // Set title if provided
+      if (options.title) {
+        document.getElementById('paymentTitle').textContent = options.title;
+      }
+    },
+
+    close() {
+      this.modal.classList.remove('active');
+      document.body.style.overflow = '';
+
+      if (this.isProcessing) {
+        // Don't reset if processing
+        return;
+      }
+
+      setTimeout(() => this.resetState(), 300);
+    },
+
+    resetState() {
+      this.isProcessing = false;
+      this.currentAmount = 0;
+
+      // Reset views
+      document.getElementById('paymentForm').style.display = 'block';
+      document.getElementById('paymentStatusPending').style.display = 'none';
+      document.getElementById('paymentStatusSuccess').style.display = 'none';
+      document.getElementById('paymentStatusError').style.display = 'none';
+      document.getElementById('paymentFooter').style.display = 'flex';
+
+      // Reset inputs
+      document.getElementById('paymentAmount').value = '';
+      this.updateUsdValue();
+
+      // Reset copy button
+      const copyBtn = document.getElementById('paymentCopyAddress');
+      copyBtn.classList.remove('copied');
+      copyBtn.innerHTML = '<span>📋</span> Copy Address';
+    },
+
+    selectCurrency(currency) {
+      this.currentCurrency = currency;
+      const config = this.paymentAddresses[currency];
+
+      if (!config) return;
+
+      // Update UI
+      document.querySelectorAll('.payment-currency-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.currency === currency);
+      });
+
+      document.getElementById('paymentCurrencyDisplay').textContent = currency;
+      document.getElementById('paymentNetwork').textContent = config.network;
+      document.getElementById('paymentAddress').textContent = config.address;
+
+      // Update network-specific info
+      this.updateNetworkInfo(config.network);
+
+      // Update USD value
+      this.updateUsdValue();
+
+      // Generate QR code
+      this.generateQR(currency, this.currentAmount);
+    },
+
+    updateNetworkInfo(network) {
+      const networkInfo = {
+        'TRON': { fee: '~$0.1', time: '~3-5 minutes' },
+        'BSC': { fee: '~$0.5', time: '~3-5 minutes' },
+        'Ethereum': { fee: '~$5-20', time: '~5-15 minutes' },
+        'Solana': { fee: '~$0.01', time: '~1-2 minutes' },
+        'Bitcoin': { fee: '~$2-5', time: '~10-60 minutes' },
+        'Polygon': { fee: '~$0.01', time: '~2-5 minutes' }
+      };
+
+      const info = networkInfo[network] || { fee: '~$1', time: '~5 minutes' };
+      document.getElementById('paymentFee').textContent = info.fee;
+      document.getElementById('paymentTime').textContent = info.time;
+    },
+
+    updateUsdValue() {
+      const price = this.prices[this.currentCurrency] || 0;
+      const usdValue = this.currentAmount * price;
+      document.getElementById('paymentUsdValue').textContent = usdValue.toFixed(2);
+    },
+
+    generateQR(currency, amount) {
+      const config = this.paymentAddresses[currency];
+      const qrContainer = document.getElementById('paymentQR');
+
+      // Generate QR code data
+      let qrData = '';
+      switch(config.network) {
+        case 'Bitcoin':
+          qrData = amount
+            ? `bitcoin:${config.address}?amount=${amount}`
+            : `bitcoin:${config.address}`;
+          break;
+        case 'Ethereum':
+        case 'BSC':
+        case 'Polygon':
+          qrData = amount
+            ? `ethereum:${config.address}?value=${amount}`
+            : `ethereum:${config.address}`;
+          break;
+        case 'TRON':
+          qrData = amount
+            ? `tron:${config.address}?amount=${amount}`
+            : `tron:${config.address}`;
+          break;
+        case 'Solana':
+          qrData = amount
+            ? `solana:${config.address}?amount=${amount}`
+            : `solana:${config.address}`;
+          break;
+        default:
+          qrData = config.address;
+      }
+
+      // In production, use a QR code library
+      qrContainer.innerHTML = `<div style="font-size: 10px; text-align: center; padding: 10px;">${currency}<br>QR</div>`;
+      qrContainer.dataset.qrData = qrData;
+    },
+
+    async copyAddress() {
+      const config = this.paymentAddresses[this.currentCurrency];
+
+      try {
+        await navigator.clipboard.writeText(config.address);
+
+        const copyBtn = document.getElementById('paymentCopyAddress');
+        copyBtn.classList.add('copied');
+        copyBtn.innerHTML = '<span>✓</span> Copied!';
+
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.innerHTML = '<span>📋</span> Copy Address';
+        }, 2000);
+
+      } catch (error) {
+        console.error('Failed to copy address:', error);
+      }
+    },
+
+    validateAddress() {
+      const config = this.paymentAddresses[this.currentCurrency];
+
+      // Use paymentSystem if available
+      if (window.paymentSystem) {
+        const result = window.paymentSystem.validateAddress(config.address, this.currentCurrency);
+
+        if (result.valid) {
+          alert('✅ Address is valid for ' + this.currentCurrency);
+        } else {
+          alert('❌ ' + result.error);
+        }
+      } else {
+        // Basic validation
+        alert('✅ Address format appears valid for ' + this.currentCurrency);
+      }
+    },
+
+    async confirmPayment() {
+      if (this.currentAmount <= 0) {
+        alert('Please enter a valid amount');
+        return;
+      }
+
+      this.isProcessing = true;
+
+      // Show pending state
+      document.getElementById('paymentForm').style.display = 'none';
+      document.getElementById('paymentStatusPending').style.display = 'block';
+      document.getElementById('paymentFooter').style.display = 'none';
+
+      // Dispatch payment event
+      window.dispatchEvent(new CustomEvent('payment:initiate', {
+        detail: {
+          currency: this.currentCurrency,
+          amount: this.currentAmount,
+          address: this.paymentAddresses[this.currentCurrency].address
+        }
+      }));
+
+      // Create payment via paymentSystem if available
+      if (window.paymentSystem) {
+        try {
+          const transaction = await window.paymentSystem.createPayment(
+            this.currentCurrency,
+            this.currentAmount
+          );
+
+          // If wallet is connected, try on-chain payment
+          if (window.walletConnector?.isConnected) {
+            const result = await window.paymentSystem.executeOnChainPayment(
+              this.currentCurrency,
+              this.currentAmount,
+              window.walletConnector
+            );
+
+            if (result.success) {
+              this.trackTransaction(result);
+            } else {
+              this.onPaymentFailed({ error: result.error });
+            }
+          } else {
+            // Manual payment - show address and wait
+            this.showManualPaymentInstructions();
+          }
+        } catch (error) {
+          this.onPaymentFailed({ error: error.message });
+        }
+      }
+    },
+
+    trackTransaction(transaction) {
+      // Poll for transaction status
+      const checkStatus = () => {
+        const tx = window.paymentSystem?.getTransaction(transaction.id);
+
+        if (tx) {
+          if (tx.status === 'confirmed') {
+            this.onPaymentConfirmed(tx);
+          } else if (tx.status === 'failed') {
+            this.onPaymentFailed(tx);
+          } else {
+            setTimeout(checkStatus, 5000);
+          }
+        }
+      };
+
+      setTimeout(checkStatus, 5000);
+    },
+
+    showManualPaymentInstructions() {
+      // Keep showing the address for manual payment
+      document.getElementById('paymentForm').style.display = 'block';
+      document.getElementById('paymentStatusPending').style.display = 'none';
+      document.getElementById('paymentFooter').style.display = 'flex';
+
+      // Update confirm button
+      const confirmBtn = document.getElementById('paymentConfirmBtn');
+      confirmBtn.textContent = 'I\'ve Sent the Payment';
+      confirmBtn.onclick = () => {
+        alert('Thank you! Your payment is being processed.');
+        this.close();
+      };
+    },
+
+    onPaymentCreated(transaction) {
+      console.log('Payment created:', transaction);
+    },
+
+    onPaymentConfirmed(transaction) {
+      document.getElementById('paymentStatusPending').style.display = 'none';
+      document.getElementById('paymentStatusSuccess').style.display = 'block';
+
+      // Update transaction link
+      if (transaction.txHash && window.walletConnector) {
+        const explorerUrl = window.walletConnector.getExplorerUrl(transaction.txHash);
+        if (explorerUrl) {
+          document.getElementById('paymentTxLink').href = explorerUrl;
+        }
+      }
+
+      this.isProcessing = false;
+
+      // Auto close after 5 seconds
+      setTimeout(() => this.close(), 5000);
+    },
+
+    onPaymentFailed(error) {
+      document.getElementById('paymentStatusPending').style.display = 'none';
+      document.getElementById('paymentStatusError').style.display = 'block';
+      document.getElementById('paymentErrorMessage').textContent = error.error || 'Payment failed';
+      document.getElementById('paymentFooter').style.display = 'flex';
+
+      const confirmBtn = document.getElementById('paymentConfirmBtn');
+      confirmBtn.textContent = 'Try Again';
+      confirmBtn.onclick = () => this.resetState();
+
+      this.isProcessing = false;
+    }
+  };
+
+  // Initialize
+  PaymentModal.init();
+
+  // Expose globally
+  window.PaymentModal = PaymentModal;
+  window.openPaymentModal = (options) => PaymentModal.open(options);
+})();
+</script>

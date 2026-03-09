@@ -1,0 +1,243 @@
+{
+  "tournament_rewards": {
+    "version": "2.0",
+    "last_updated": "2026-03-10",
+    "tournament_name": "命运塔锦标赛 - Tower of Fate Championship",
+    "season": "Season 1",
+    "rewards": {
+      "1st": {
+        "rank": 1,
+        "title_cn": "首登者·金",
+        "title_en": "First Ascendant - Gold",
+        "subtitle": "Champion",
+        "postcard": {
+          "front_image": "assets/postcards/gold-champion-front.jpg",
+          "back_image": "assets/postcards/gold-champion-back.jpg",
+          "tower_reference": "assets/towers/burj-khalifa.png",
+          "tower_theme": "golden_majestic",
+          "tower_levels": 13,
+          "primary_color": "#FFD700",
+          "secondary_color": "#B8860B",
+          "accent_color": "#FFFFFF"
+        },
+        "prize_pool_percentage": 50,
+        "prize_formula": "total_pool * 0.50",
+        "nft_reward": {
+          "token_id": "legendary_tower_13",
+          "name": "Golden Spire of Destiny",
+          "name_cn": "命运金塔",
+          "rarity": "legendary",
+          "tier": "S",
+          "attributes": {
+            "level": 13,
+            "element": "gold",
+            "power": 9999,
+            "special_ability": "Golden Fortune - 2x rewards for 7 days"
+          },
+          "animation_url": "assets/nft/legendary-tower-13-golden.mp4",
+          "image_url": "assets/nft/legendary-tower-13-golden.png"
+        },
+        "in_game_rewards": {
+          "gems": 10000,
+          "coins": 500000,
+          "exclusive_skin": "golden_champion_crown",
+          "title_badge": "champion_gold",
+          "vip_days": 30
+        },
+        "physical_rewards": {
+          "postcard_printed": true,
+          "certificate": "champion_certificate.pdf",
+          "medal": "gold_medal_3d_model.glb"
+        }
+      },
+      "2nd": {
+        "rank": 2,
+        "title_cn": "次登者·银",
+        "title_en": "Second Ascendant - Silver",
+        "subtitle": "Runner-Up",
+        "postcard": {
+          "front_image": "assets/postcards/silver-runnerup-front.jpg",
+          "back_image": "assets/postcards/silver-runnerup-back.jpg",
+          "tower_reference": "assets/towers/petronas.png",
+          "tower_theme": "silver_elegant",
+          "tower_levels": 8,
+          "primary_color": "#C0C0C0",
+          "secondary_color": "#A9A9A9",
+          "accent_color": "#4B0082"
+        },
+        "prize_pool_percentage": 30,
+        "prize_formula": "total_pool * 0.30",
+        "nft_reward": {
+          "token_id": "epic_tower_08",
+          "name": "Silver Twin Spires",
+          "name_cn": "银双子塔",
+          "rarity": "epic",
+          "tier": "A",
+          "attributes": {
+            "level": 8,
+            "element": "silver",
+            "power": 7500,
+            "special_ability": "Silver Shield - 50% damage reduction for 5 days"
+          },
+          "animation_url": "assets/nft/epic-tower-08-silver.mp4",
+          "image_url": "assets/nft/epic-tower-08-silver.png"
+        },
+        "in_game_rewards": {
+          "gems": 5000,
+          "coins": 250000,
+          "exclusive_skin": "silver_laurel_wreath",
+          "title_badge": "runnerup_silver",
+          "vip_days": 14
+        },
+        "physical_rewards": {
+          "postcard_printed": true,
+          "certificate": "runnerup_certificate.pdf",
+          "medal": "silver_medal_3d_model.glb"
+        }
+      },
+      "3rd": {
+        "rank": 3,
+        "title_cn": "三登者·铜",
+        "title_en": "Third Ascendant - Bronze",
+        "subtitle": "Third Place",
+        "postcard": {
+          "front_image": "assets/postcards/bronze-third-front.jpg",
+          "back_image": "assets/postcards/bronze-third-back.jpg",
+          "tower_reference": "assets/towers/pyramids.png",
+          "tower_theme": "bronze_sturdy",
+          "tower_levels": 4,
+          "primary_color": "#CD7F32",
+          "secondary_color": "#8B4513",
+          "accent_color": "#FFD700"
+        },
+        "prize_pool_percentage": 15,
+        "prize_formula": "total_pool * 0.15",
+        "nft_reward": {
+          "token_id": "rare_tower_04",
+          "name": "Bronze Pyramid Foundation",
+          "name_cn": "青铜金字塔基座",
+          "rarity": "rare",
+          "tier": "B",
+          "attributes": {
+            "level": 4,
+            "element": "bronze",
+            "power": 5000,
+            "special_ability": "Bronze Resilience - +25% defense for 3 days"
+          },
+          "animation_url": "assets/nft/rare-tower-04-bronze.mp4",
+          "image_url": "assets/nft/rare-tower-04-bronze.png"
+        },
+        "in_game_rewards": {
+          "gems": 2500,
+          "coins": 100000,
+          "exclusive_skin": "bronze_medal_ribbon",
+          "title_badge": "third_bronze",
+          "vip_days": 7
+        },
+        "physical_rewards": {
+          "postcard_printed": true,
+          "certificate": "thirdplace_certificate.pdf",
+          "medal": "bronze_medal_3d_model.glb"
+        }
+      }
+    },
+    "consolation_prizes": {
+      "top_10": {
+        "min_rank": 4,
+        "max_rank": 10,
+        "title_cn": "登峰者",
+        "title_en": "Peak Climber",
+        "prize_pool_percentage": 5,
+        "in_game_rewards": {
+          "gems": 500,
+          "coins": 25000,
+          "title_badge": "top_ten"
+        }
+      }
+    },
+    "postcard_template": {
+      "dimensions": {
+        "width_mm": 148,
+        "height_mm": 105,
+        "aspect_ratio": "3:2",
+        "bleed_mm": 3,
+        "safe_margin_mm": 5
+      },
+      "back_layout": {
+        "header": {
+          "text_cn": "命运塔锦标赛",
+          "text_en": "Tower of Fate Championship",
+          "font": "Playfair Display / Noto Serif SC",
+          "size_pt": 18,
+          "color": "#inherit_from_tier"
+        },
+        "player_info_section": {
+          "fields": [
+            {
+              "label_cn": "获奖者",
+              "label_en": "Champion",
+              "placeholder": "[PLAYER_NAME]",
+              "field_type": "text"
+            },
+            {
+              "label_cn": "锦标赛",
+              "label_en": "Tournament",
+              "placeholder": "[TOURNAMENT_NAME]",
+              "field_type": "text"
+            },
+            {
+              "label_cn": "日期",
+              "label_en": "Date",
+              "placeholder": "[YYYY-MM-DD]",
+              "field_type": "date"
+            },
+            {
+              "label_cn": "排名",
+              "label_en": "Rank",
+              "placeholder": "[#RANK]",
+              "field_type": "number"
+            }
+          ]
+        },
+        "qr_code": {
+          "position": "bottom_right",
+          "size_mm": 25,
+          "url_template": "https://toweroffate.game/redeem?token=[UNIQUE_TOKEN]",
+          "frame_style": "tier_colored"
+        },
+        "tower_description": {
+          "gold": "这座13层金色塔楼象征着至高无上的荣耀，只有真正的冠军才能登顶。",
+          "silver": "这座8层银色塔楼代表着优雅与坚韧，是次登者的永恒见证。",
+          "bronze": "这座4层铜色塔楼象征着坚实的基础，是成功之路的第一步。"
+        }
+      }
+    },
+    "printing_specs": {
+      "paper_type": "350gsm_art_card",
+      "finish_front": "glossy_uv_coating",
+      "finish_back": "matte_writable",
+      "special_effects": {
+        "gold": ["gold_foil_stamping", "embossed_crown"],
+        "silver": ["silver_metallic_ink", "spot_uv_accents"],
+        "bronze": ["copper_metallic_ink", "textured_varnish"]
+      },
+      "color_profiles": {
+        "gold": {
+          "cmyk": [0, 15, 65, 20],
+          "pantone": "871 C",
+          "hex": "#FFD700"
+        },
+        "silver": {
+          "cmyk": [0, 0, 0, 25],
+          "pantone": "877 C",
+          "hex": "#C0C0C0"
+        },
+        "bronze": {
+          "cmyk": [0, 35, 65, 30],
+          "pantone": "876 C",
+          "hex": "#CD7F32"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,871 @@
+<!-- Tower of Fate - Wallet Panel Component -->
+<!-- Multi-chain wallet connection UI -->
+
+<style>
+  .wallet-panel {
+    --wallet-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --wallet-card-bg: rgba(255, 255, 255, 0.05);
+    --wallet-border: rgba(255, 255, 255, 0.1);
+    --wallet-primary: #ff6b6b;
+    --wallet-primary-hover: #ff5252;
+    --wallet-text: #ffffff;
+    --wallet-text-muted: rgba(255, 255, 255, 0.6);
+    --wallet-success: #4ade80;
+    --wallet-warning: #fbbf24;
+    --wallet-error: #f87171;
+    --wallet-eth: #627eea;
+    --wallet-bnb: #f3ba2f;
+    --wallet-polygon: #8247e5;
+
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: var(--wallet-bg);
+    backdrop-filter: blur(20px);
+    border-left: 1px solid var(--wallet-border);
+    z-index: 10000;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .wallet-panel.active {
+    right: 0;
+  }
+
+  .wallet-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .wallet-panel-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Header */
+  .wallet-header {
+    padding: 24px;
+    border-bottom: 1px solid var(--wallet-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wallet-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--wallet-text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .wallet-header h2::before {
+    content: '👛';
+    font-size: 24px;
+  }
+
+  .wallet-close {
+    background: none;
+    border: none;
+    color: var(--wallet-text-muted);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+
+  .wallet-close:hover {
+    background: var(--wallet-card-bg);
+    color: var(--wallet-text);
+  }
+
+  /* Content */
+  .wallet-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  /* Not Connected State */
+  .wallet-not-connected {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .wallet-not-connected-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .wallet-not-connected h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    color: var(--wallet-text);
+  }
+
+  .wallet-not-connected p {
+    margin: 0 0 24px;
+    color: var(--wallet-text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Wallet Options */
+  .wallet-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wallet-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--wallet-card-bg);
+    border: 1px solid var(--wallet-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .wallet-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--wallet-primary);
+    transform: translateX(-4px);
+  }
+
+  .wallet-option-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .wallet-option-info {
+    flex: 1;
+    text-align: left;
+  }
+
+  .wallet-option-info h4 {
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--wallet-text);
+  }
+
+  .wallet-option-info p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--wallet-text-muted);
+  }
+
+  .wallet-option-arrow {
+    color: var(--wallet-text-muted);
+    font-size: 20px;
+  }
+
+  /* Connected State */
+  .wallet-connected {
+    display: none;
+  }
+
+  .wallet-connected.active {
+    display: block;
+  }
+
+  /* Account Card */
+  .wallet-account-card {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(255, 107, 107, 0.05) 100%);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+
+  .wallet-account-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .wallet-account-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--wallet-primary) 0%, #ff8e8e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .wallet-account-info {
+    flex: 1;
+  }
+
+  .wallet-account-address {
+    font-family: 'SF Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wallet-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wallet-account-address:hover {
+    color: var(--wallet-primary);
+  }
+
+  .wallet-account-type {
+    font-size: 12px;
+    color: var(--wallet-text-muted);
+    text-transform: capitalize;
+  }
+
+  .wallet-account-balance {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--wallet-text);
+    margin-bottom: 4px;
+  }
+
+  .wallet-account-balance-usd {
+    font-size: 14px;
+    color: var(--wallet-text-muted);
+  }
+
+  /* Network Selector */
+  .wallet-network-section {
+    margin-bottom: 24px;
+  }
+
+  .wallet-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--wallet-text-muted);
+    margin: 0 0 12px;
+  }
+
+  .wallet-network-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .wallet-network-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--wallet-card-bg);
+    border: 1px solid var(--wallet-border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 13px;
+    color: var(--wallet-text);
+  }
+
+  .wallet-network-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .wallet-network-btn.active {
+    border-color: currentColor;
+  }
+
+  .wallet-network-btn.eth { color: var(--wallet-eth); }
+  .wallet-network-btn.bnb { color: var(--wallet-bnb); }
+  .wallet-network-btn.polygon { color: var(--wallet-polygon); }
+
+  .wallet-network-btn .network-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Assets Section */
+  .wallet-assets-section {
+    margin-bottom: 24px;
+  }
+
+  .wallet-asset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wallet-asset-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--wallet-card-bg);
+    border: 1px solid var(--wallet-border);
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+
+  .wallet-asset-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .wallet-asset-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .wallet-asset-info {
+    flex: 1;
+  }
+
+  .wallet-asset-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wallet-text);
+    margin-bottom: 2px;
+  }
+
+  .wallet-asset-network {
+    font-size: 11px;
+    color: var(--wallet-text-muted);
+  }
+
+  .wallet-asset-balance {
+    text-align: right;
+  }
+
+  .wallet-asset-amount {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--wallet-text);
+  }
+
+  .wallet-asset-value {
+    font-size: 12px;
+    color: var(--wallet-text-muted);
+  }
+
+  /* Action Buttons */
+  .wallet-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .wallet-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--wallet-card-bg);
+    border: 1px solid var(--wallet-border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--wallet-text);
+  }
+
+  .wallet-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--wallet-primary);
+  }
+
+  .wallet-action-btn .icon {
+    font-size: 24px;
+  }
+
+  .wallet-action-btn span {
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Disconnect Button */
+  .wallet-disconnect {
+    width: 100%;
+    padding: 14px;
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    border-radius: 12px;
+    color: var(--wallet-error);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .wallet-disconnect:hover {
+    background: rgba(248, 113, 113, 0.2);
+  }
+
+  /* Loading State */
+  .wallet-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+  }
+
+  .wallet-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid var(--wallet-border);
+    border-top-color: var(--wallet-primary);
+    border-radius: 50%;
+    animation: wallet-spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  @keyframes wallet-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .wallet-loading p {
+    color: var(--wallet-text-muted);
+    font-size: 14px;
+  }
+
+  /* Error State */
+  .wallet-error {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .wallet-error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .wallet-error h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    color: var(--wallet-error);
+  }
+
+  .wallet-error p {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: var(--wallet-text-muted);
+  }
+
+  .wallet-retry-btn {
+    padding: 10px 24px;
+    background: var(--wallet-primary);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .wallet-retry-btn:hover {
+    background: var(--wallet-primary-hover);
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .wallet-panel {
+      width: 100%;
+      right: -100%;
+    }
+  }
+</style>
+
+<!-- Wallet Panel Overlay -->
+<div class="wallet-panel-overlay" id="walletPanelOverlay"></div>
+
+<!-- Wallet Panel -->
+<div class="wallet-panel" id="walletPanel">
+  <!-- Header -->
+  <div class="wallet-header">
+    <h2>My Wallet</h2>
+    <button class="wallet-close" id="walletCloseBtn">&times;</button>
+  </div>
+
+  <!-- Content -->
+  <div class="wallet-content">
+    <!-- Not Connected State -->
+    <div class="wallet-not-connected" id="walletNotConnected">
+      <div class="wallet-not-connected-icon">🔐</div>
+      <h3>Connect Your Wallet</h3>
+      <p>Connect your wallet to access your assets, make transactions, and interact with the Tower of Fate ecosystem.</p>
+
+      <div class="wallet-options">
+        <div class="wallet-option" data-wallet="metamask">
+          <div class="wallet-option-icon">🦊</div>
+          <div class="wallet-option-info">
+            <h4>MetaMask</h4>
+            <p>Connect using browser extension</p>
+          </div>
+          <span class="wallet-option-arrow">&rsaquo;</span>
+        </div>
+
+        <div class="wallet-option" data-wallet="walletconnect">
+          <div class="wallet-option-icon">🔗</div>
+          <div class="wallet-option-info">
+            <h4>WalletConnect</h4>
+            <p>Scan with your mobile wallet</p>
+          </div>
+          <span class="wallet-option-arrow">&rsaquo;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="wallet-loading" id="walletLoading" style="display: none;">
+      <div class="wallet-spinner"></div>
+      <p>Connecting to wallet...</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="wallet-error" id="walletError" style="display: none;">
+      <div class="wallet-error-icon">⚠️</div>
+      <h3>Connection Failed</h3>
+      <p id="walletErrorMessage">Something went wrong. Please try again.</p>
+      <button class="wallet-retry-btn" id="walletRetryBtn">Try Again</button>
+    </div>
+
+    <!-- Connected State -->
+    <div class="wallet-connected" id="walletConnected">
+      <!-- Account Card -->
+      <div class="wallet-account-card">
+        <div class="wallet-account-header">
+          <div class="wallet-account-avatar">🎮</div>
+          <div class="wallet-account-info">
+            <div class="wallet-account-address" id="walletAddressDisplay">
+              0x...0000
+              <span>📋</span>
+            </div>
+            <div class="wallet-account-type" id="walletTypeDisplay">MetaMask</div>
+          </div>
+        </div>
+        <div class="wallet-account-balance" id="walletBalanceDisplay">0.00 ETH</div>
+        <div class="wallet-account-balance-usd" id="walletBalanceUsd">≈ $0.00 USD</div>
+      </div>
+
+      <!-- Network Selector -->
+      <div class="wallet-network-section">
+        <h3 class="wallet-section-title">Select Network</h3>
+        <div class="wallet-network-selector">
+          <button class="wallet-network-btn eth active" data-chain="1">
+            <span class="network-dot"></span>
+            Ethereum
+          </button>
+          <button class="wallet-network-btn bnb" data-chain="56">
+            <span class="network-dot"></span>
+            BSC
+          </button>
+          <button class="wallet-network-btn polygon" data-chain="137">
+            <span class="network-dot"></span>
+            Polygon
+          </button>
+        </div>
+      </div>
+
+      <!-- Assets -->
+      <div class="wallet-assets-section">
+        <h3 class="wallet-section-title">Your Assets</h3>
+        <div class="wallet-asset-list" id="walletAssetList">
+          <div class="wallet-asset-item">
+            <div class="wallet-asset-icon">💎</div>
+            <div class="wallet-asset-info">
+              <div class="wallet-asset-name">ETH</div>
+              <div class="wallet-asset-network">Ethereum</div>
+            </div>
+            <div class="wallet-asset-balance">
+              <div class="wallet-asset-amount">0.00</div>
+              <div class="wallet-asset-value">$0.00</div>
+            </div>
+          </div>
+
+          <div class="wallet-asset-item">
+            <div class="wallet-asset-icon">🎲</div>
+            <div class="wallet-asset-info">
+              <div class="wallet-asset-name">FATE</div>
+              <div class="wallet-asset-network">Tower of Fate</div>
+            </div>
+            <div class="wallet-asset-balance">
+              <div class="wallet-asset-amount">0.00</div>
+              <div class="wallet-asset-value">$0.00</div>
+            </div>
+          </div>
+
+          <div class="wallet-asset-item">
+            <div class="wallet-asset-icon">💵</div>
+            <div class="wallet-asset-info">
+              <div class="wallet-asset-name">USDT</div>
+              <div class="wallet-asset-network">Multi-Chain</div>
+            </div>
+            <div class="wallet-asset-balance">
+              <div class="wallet-asset-amount">0.00</div>
+              <div class="wallet-asset-value">$0.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="wallet-actions">
+        <button class="wallet-action-btn" id="walletReceiveBtn">
+          <span class="icon">📥</span>
+          <span>Receive</span>
+        </button>
+        <button class="wallet-action-btn" id="walletSendBtn">
+          <span class="icon">📤</span>
+          <span>Send</span>
+        </button>
+        <button class="wallet-action-btn" id="walletStakeBtn">
+          <span class="icon">🔒</span>
+          <span>Stake</span>
+        </button>
+        <button class="wallet-action-btn" id="walletSwapBtn">
+          <span class="icon">🔄</span>
+          <span>Swap</span>
+        </button>
+      </div>
+
+      <!-- Disconnect -->
+      <button class="wallet-disconnect" id="walletDisconnectBtn">
+        <span>🔌</span>
+        Disconnect Wallet
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Wallet Panel Controller
+  const WalletPanelUI = {
+    panel: document.getElementById('walletPanel'),
+    overlay: document.getElementById('walletPanelOverlay'),
+    closeBtn: document.getElementById('walletCloseBtn'),
+
+    // States
+    notConnected: document.getElementById('walletNotConnected'),
+    loading: document.getElementById('walletLoading'),
+    error: document.getElementById('walletError'),
+    connected: document.getElementById('walletConnected'),
+
+    // Connected elements
+    addressDisplay: document.getElementById('walletAddressDisplay'),
+    typeDisplay: document.getElementById('walletTypeDisplay'),
+    balanceDisplay: document.getElementById('walletBalanceDisplay'),
+    balanceUsd: document.getElementById('walletBalanceUsd'),
+
+    isOpen: false,
+
+    init() {
+      this.bindEvents();
+      this.checkConnection();
+    },
+
+    bindEvents() {
+      // Close panel
+      this.closeBtn.addEventListener('click', () => this.close());
+      this.overlay.addEventListener('click', () => this.close());
+
+      // Wallet options
+      document.querySelectorAll('.wallet-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          const walletType = e.currentTarget.dataset.wallet;
+          this.connect(walletType);
+        });
+      });
+
+      // Network selector
+      document.querySelectorAll('.wallet-network-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const chainId = parseInt(e.currentTarget.dataset.chain);
+          this.switchNetwork(chainId);
+        });
+      });
+
+      // Action buttons
+      document.getElementById('walletDisconnectBtn')?.addEventListener('click', () => {
+        this.disconnect();
+      });
+
+      document.getElementById('walletRetryBtn')?.addEventListener('click', () => {
+        this.showState('notConnected');
+      });
+
+      // Listen for wallet events
+      window.addEventListener('wallet:connected', (e) => {
+        this.onConnected(e.detail);
+      });
+
+      window.addEventListener('wallet:disconnected', () => {
+        this.onDisconnected();
+      });
+
+      window.addEventListener('wallet:error', (e) => {
+        this.onError(e.detail.error);
+      });
+    },
+
+    open() {
+      this.panel.classList.add('active');
+      this.overlay.classList.add('active');
+      this.isOpen = true;
+      document.body.style.overflow = 'hidden';
+    },
+
+    close() {
+      this.panel.classList.remove('active');
+      this.overlay.classList.remove('active');
+      this.isOpen = false;
+      document.body.style.overflow = '';
+    },
+
+    toggle() {
+      if (this.isOpen) {
+        this.close();
+      } else {
+        this.open();
+      }
+    },
+
+    showState(state) {
+      this.notConnected.style.display = 'none';
+      this.loading.style.display = 'none';
+      this.error.style.display = 'none';
+      this.connected.classList.remove('active');
+
+      switch(state) {
+        case 'notConnected':
+          this.notConnected.style.display = 'block';
+          break;
+        case 'loading':
+          this.loading.style.display = 'flex';
+          break;
+        case 'error':
+          this.error.style.display = 'block';
+          break;
+        case 'connected':
+          this.connected.classList.add('active');
+          break;
+      }
+    },
+
+    async connect(walletType) {
+      this.showState('loading');
+
+      // Dispatch connect event
+      window.dispatchEvent(new CustomEvent('wallet:connect', {
+        detail: { type: walletType }
+      }));
+    },
+
+    async disconnect() {
+      window.dispatchEvent(new CustomEvent('wallet:disconnect'));
+    },
+
+    onConnected(data) {
+      this.addressDisplay.textContent = this.formatAddress(data.account) + ' 📋';
+      this.typeDisplay.textContent = data.walletType;
+      this.showState('connected');
+      this.updateBalance();
+    },
+
+    onDisconnected() {
+      this.showState('notConnected');
+    },
+
+    onError(error) {
+      document.getElementById('walletErrorMessage').textContent = error || 'Connection failed';
+      this.showState('error');
+    },
+
+    async switchNetwork(chainId) {
+      window.dispatchEvent(new CustomEvent('wallet:switchNetwork', {
+        detail: { chainId }
+      }));
+
+      // Update UI
+      document.querySelectorAll('.wallet-network-btn').forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.chain) === chainId);
+      });
+    },
+
+    async updateBalance() {
+      // This would fetch actual balance from walletConnector
+      if (window.walletConnector) {
+        try {
+          const balance = await window.walletConnector.getBalance();
+          this.balanceDisplay.textContent = balance.toFixed(4) + ' ETH';
+        } catch (e) {
+          console.error('Failed to get balance:', e);
+        }
+      }
+    },
+
+    async checkConnection() {
+      // Check if already connected
+      if (window.walletConnector?.isConnected) {
+        this.onConnected({
+          account: window.walletConnector.account,
+          walletType: window.walletConnector.walletType
+        });
+      }
+    },
+
+    formatAddress(address) {
+      if (!address) return '0x...0000';
+      return address.slice(0, 6) + '...' + address.slice(-4);
+    }
+  };
+
+  // Initialize
+  WalletPanelUI.init();
+
+  // Expose globally
+  window.WalletPanelUI = WalletPanelUI;
+
+  // Open button handler (to be called from main UI)
+  window.openWalletPanel = () => WalletPanelUI.open();
+  window.toggleWalletPanel = () => WalletPanelUI.toggle();
+})();
+</script>
