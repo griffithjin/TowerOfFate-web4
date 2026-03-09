@@ -640,7 +640,7 @@
             <span class="logo-icon">🏰</span>
             <span class="logo-text">命运塔·首登者</span>
         </div>
-        <button class="wallet-btn" id="walletBtn" onclick="showWalletModal()">连接钱包</button>
+        <button class="wallet-btn" id="walletBtn" onclick="showWalletModal()">🎮 游客模式</button>
     </header>
 
     <!-- Main Content -->
@@ -683,51 +683,60 @@
         <div class="wallet-card" id="walletCard">
             <div class="wallet-header">
                 <span class="wallet-title">💎 我的资产</span>
-                <span class="wallet-status" id="walletStatus">未连接</span>
+                <span class="wallet-status" id="walletStatus">游客模式</span>
             </div>
             <div class="balance-grid">
                 <div class="balance-item">
                     <div class="balance-currency">$FATE</div>
-                    <div class="balance-value" id="fateBalance">0</div>
+                    <div class="balance-value" id="fateBalance">--</div>
                 </div>
                 <div class="balance-item">
                     <div class="balance-currency">USDT</div>
-                    <div class="balance-value" id="usdtBalance">0</div>
+                    <div class="balance-value" id="usdtBalance">--</div>
                 </div>
                 <div class="balance-item">
                     <div class="balance-currency">NFT</div>
-                    <div class="balance-value" id="nftCount">0</div>
+                    <div class="balance-value" id="nftCount">--</div>
                 </div>
                 <div class="balance-item">
                     <div class="balance-currency">积分</div>
                     <div class="balance-value" id="score">0</div>
                 </div>
             </div>
+            <div style="margin-top: 16px; padding: 12px; background: rgba(0, 255, 136, 0.1); border-radius: 12px; border: 1px solid rgba(0, 255, 136, 0.3);">
+                <div style="font-size: 0.8rem; color: #00ff88; margin-bottom: 8px;">🎮 您正在以游客模式游玩</div>
+                <div style="font-size: 0.7rem; color: #888;">连接钱包后可：\n• 保存游戏进度\n• 赚取$FATE奖励\n• 领取NFT奖品\n• 参加锦标赛</div>
+                <button onclick="showWalletModal()" style="margin-top: 12px; width: 100%; padding: 10px; background: linear-gradient(45deg, #ffd700, #ff6b00); border: none; border-radius: 8px; color: #000; font-weight: bold; font-size: 0.85rem; cursor: pointer;">🔗 连接钱包解锁更多</button>
+            </div>
         </div>
 
         <!-- Game Modes -->
         <section class="section">
-            <h2 class="section-title">🎮 游戏模式</h2>
+            <h2 class="section-title">🎮 游戏模式 <span style="font-size: 0.7rem; color: #00ff88;">(无需钱包，立即游玩)</span></h2>
             <div class="modes-grid">
                 <div class="mode-card" onclick="startGame('solo')">
                     <div class="mode-icon">👤</div>
                     <div class="mode-name">个人赛</div>
                     <div class="mode-desc">4人PK，成为首登者</div>
+                    <div style="margin-top: 8px; font-size: 0.65rem; color: #00ff88;">✓ 免费游玩</div>
                 </div>
                 <div class="mode-card" onclick="startGame('team')">
                     <div class="mode-icon">👥</div>
                     <div class="mode-name">团队赛</div>
                     <div class="mode-desc">2v2/3v3 团队竞技</div>
+                    <div style="margin-top: 8px; font-size: 0.65rem; color: #00ff88;">✓ 免费游玩</div>
                 </div>
                 <div class="mode-card" onclick="startGame('streak')">
                     <div class="mode-icon">🔥</div>
                     <div class="mode-name">连胜模式</div>
                     <div class="mode-desc">单人挑战，积分制</div>
+                    <div style="margin-top: 8px; font-size: 0.65rem; color: #00ff88;">✓ 免费游玩</div>
                 </div>
                 <div class="mode-card" onclick="startGame('tournament')">
                     <div class="mode-icon">🏆</div>
                     <div class="mode-name">锦标赛</div>
                     <div class="mode-desc">全球赛事，巨额奖金</div>
+                    <div style="margin-top: 8px; font-size: 0.65rem; color: #ffd700;">💰 连接钱包领奖</div>
                 </div>
             </div>
         </section>
@@ -792,7 +801,18 @@
     <!-- Wallet Selection Modal -->
     <div class="modal" id="walletModal">
         <div class="modal-content">
-            <h3 class="modal-title">🔗 选择钱包</h3>
+            <h3 class="modal-title">🔗 选择登录方式</h3>
+
+            <div class="wallet-option" onclick="continueAsGuest()" style="border-color: rgba(0, 255, 136, 0.5); background: rgba(0, 255, 136, 0.05);">
+                <div class="wallet-option-icon" style="background: linear-gradient(135deg, #00ff88, #00cc66);">🎮</div>
+                <div class="wallet-option-info">
+                    <div class="wallet-option-name" style="color: #00ff88;">🎮 游客模式（推荐）</div>
+                    <div class="wallet-option-desc">无需钱包，立即开始游戏</div>
+                </div>
+                <div class="wallet-option-arrow" style="color: #00ff88;">›</div>
+            </div>
+
+            <div style="text-align: center; margin: 16px 0; color: #666; font-size: 0.8rem;">— 或连接钱包获取奖励 —</div>
 
             <div class="wallet-option" onclick="connectOKXWallet()">
                 <div class="wallet-option-icon" style="background: linear-gradient(135deg, #000, #1a1a1a);">🅾️</div>
@@ -830,7 +850,7 @@
                 <div class="wallet-option-arrow">›</div>
             </div>
 
-            <button class="close-btn" onclick="closeWalletModal()">取消</button>
+            <button class="close-btn" onclick="closeWalletModal()">关闭</button>
         </div>
     </div>
 
@@ -911,10 +931,47 @@
 
         // Initialize
         window.addEventListener('load', () => {
+            // Check for saved wallet connection
+            loadWalletFromStorage();
+
             setTimeout(() => {
                 document.getElementById('loading').classList.add('hidden');
             }, 1500);
         });
+
+        // ==================== Load Wallet from Storage ====================
+        function loadWalletFromStorage() {
+            try {
+                const saved = localStorage.getItem('towerOfFate_wallet');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (data.connected && data.wallet && data.address) {
+                        currentWallet = data.wallet;
+                        currentAddress = data.address;
+                        walletConnected = true;
+                        updateWalletUI(data.wallet, data.address);
+                        console.log('Restored wallet connection:', data.wallet);
+                    }
+                }
+            } catch (e) {
+                console.log('No saved wallet found');
+            }
+        }
+
+        // ==================== Save Wallet to Storage ====================
+        function saveWalletToStorage() {
+            if (walletConnected && currentWallet && currentAddress) {
+                const data = {
+                    connected: true,
+                    wallet: currentWallet,
+                    address: currentAddress,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('towerOfFate_wallet', JSON.stringify(data));
+            } else {
+                localStorage.removeItem('towerOfFate_wallet');
+            }
+        }
 
         // ==================== Wallet Selection Modal ====================
         function showWalletModal() {
@@ -923,6 +980,30 @@
 
         function closeWalletModal() {
             document.getElementById('walletModal').classList.remove('show');
+        }
+
+        // ==================== Continue as Guest ====================
+        function continueAsGuest() {
+            closeWalletModal();
+            showToast('🎮 已进入游客模式，点击游戏模式开始！');
+
+            // Generate guest ID if not exists
+            let guestId = localStorage.getItem('towerOfFate_guestId');
+            if (!guestId) {
+                guestId = '游客' + Math.floor(Math.random() * 9999);
+                localStorage.setItem('towerOfFate_guestId', guestId);
+            }
+
+            // Store guest mode
+            const gameState = {
+                mode: 'guest',
+                guest: true,
+                guestId: guestId,
+                startTime: Date.now()
+            };
+            localStorage.setItem('towerOfFate_gameState', JSON.stringify(gameState));
+
+            console.log('Guest mode activated:', guestId);
         }
 
         // ==================== OKX Wallet Connection ====================
@@ -1084,6 +1165,9 @@
             document.getElementById('usdtBalance').textContent = '500';
             document.getElementById('nftCount').textContent = '3';
             document.getElementById('score').textContent = '8,520';
+
+            // Save to localStorage
+            saveWalletToStorage();
         }
 
         // ==================== Disconnect Wallet ====================
@@ -1093,26 +1177,25 @@
             currentAddress = null;
 
             const btn = document.getElementById('walletBtn');
-            btn.textContent = '连接钱包';
+            btn.textContent = '🎮 游客模式';
             btn.classList.remove('connected');
 
-            document.getElementById('walletStatus').textContent = '未连接';
+            document.getElementById('walletStatus').textContent = '游客模式';
             document.getElementById('walletStatus').classList.remove('connected');
 
-            document.getElementById('fateBalance').textContent = '0';
-            document.getElementById('usdtBalance').textContent = '0';
-            document.getElementById('nftCount').textContent = '0';
+            document.getElementById('fateBalance').textContent = '--';
+            document.getElementById('usdtBalance').textContent = '--';
+            document.getElementById('nftCount').textContent = '--';
             document.getElementById('score').textContent = '0';
+
+            // Clear localStorage
+            localStorage.removeItem('towerOfFate_wallet');
+
+            showToast('👋 已退出钱包，当前为游客模式');
         }
 
         // ==================== Start Game ====================
         function startGame(mode) {
-            if (!walletConnected) {
-                showToast('⚠️ 请先连接钱包');
-                showWalletModal();
-                return;
-            }
-
             const modeNames = {
                 solo: '个人赛',
                 team: '团队赛',
@@ -1120,10 +1203,39 @@
                 tournament: '锦标赛'
             };
 
-            showToast('🎮 正在进入' + (modeNames[mode] || '游戏') + '...');
+            // Generate guest ID if not connected
+            let playerInfo = '';
+            if (!walletConnected) {
+                const guestId = '游客' + Math.floor(Math.random() * 9999);
+                playerInfo = '身份: ' + guestId;
+                showToast('🎮 以游客身份进入' + (modeNames[mode] || '游戏'));
+            } else {
+                playerInfo = '钱包: ' + currentWallet + '\n地址: ' + currentAddress.slice(0, 10) + '...';
+                showToast('🎮 正在进入' + (modeNames[mode] || '游戏') + '...');
+            }
+
+            // Store game state in localStorage for persistence
+            const gameState = {
+                mode: mode,
+                wallet: currentWallet,
+                address: currentAddress,
+                guest: !walletConnected,
+                startTime: Date.now()
+            };
+            localStorage.setItem('towerOfFate_gameState', JSON.stringify(gameState));
 
             setTimeout(() => {
-                alert('🎮 游戏功能演示\n\n钱包: ' + currentWallet + '\n地址: ' + currentAddress.slice(0, 10) + '...\n\n在完整版本中，这里将进入：\n• 13层塔楼3D可视化\n• 52张手牌交互\n• 实时WebSocket对战\n• 激怒牌机制\n• 首登者竞争');
+                if (mode === 'solo') {
+                    window.location.href = 'game-solo.html';
+                } else if (mode === 'team') {
+                    window.location.href = 'game-team.html';
+                } else if (mode === 'streak') {
+                    window.location.href = 'game-streak.html';
+                } else if (mode === 'tournament') {
+                    window.location.href = 'game-tournament.html';
+                } else {
+                    alert('🎮 游戏功能演示\n\n' + playerInfo + '\n\n模式: ' + (modeNames[mode] || '标准模式') + '\n\n在完整版本中，这里将进入：\n• 13层塔楼3D可视化\n• 52张手牌交互\n• 实时WebSocket对战\n• 激怒牌机制\n• 首登者竞争');
+                }
             }, 500);
         }
 
