@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>🏰 命运塔·首登者 V2.0 | Tower of Fate Web4</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Loading Screen */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0a0a0f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s;
+        }
+
+        .loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-icon {
+            font-size: 5rem;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: #ffd700;
+            font-size: 1.2rem;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 12px 16px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+        }
+
+        .logo-text {
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffd700, #ff6b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .wallet-btn {
+            background: linear-gradient(45deg, #ffd700, #ff6b00);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #000;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .wallet-btn:active {
+            transform: scale(0.95);
+        }
+
+        .wallet-btn.connected {
+            background: linear-gradient(45deg, #00ff88, #00cc66);
+        }
+
+        /* Main Content */
+        .main {
+            padding-top: 70px;
+            padding-bottom: 100px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero-title {
+            font-size: 1.6rem;
+            background: linear-gradient(45deg, #ffd700, #ff6b00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .hero-subtitle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .web4-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b00, #ff00ff);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 0 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        /* Game Modes */
+        .section {
+            padding: 20px 16px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            color: #ffd700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .mode-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .mode-card:active {
+            transform: scale(0.95);
+            border-color: #ffd700;
+        }
+
+        .mode-icon {
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+        }
+
+        .mode-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .mode-desc {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        /* Wallet Info Card */
+        .wallet-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 107, 0, 0.1));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 0 16px 24px;
+        }
+
+        .wallet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .wallet-title {
+            font-size: 0.9rem;
+            color: #ffd700;
+        }
+
+        .wallet-status {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff6666;
+        }
+
+        .wallet-status.connected {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .balance-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .balance-currency {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        .balance-value {
+            font-size: 1.1rem;
+            color: #ffd700;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        /* Payment Section */
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 0 16px;
+        }
+
+        .payment-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .payment-item:active {
+            transform: scale(0.95);
+            border-color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .payment-name {
+            font-size: 0.7rem;
+            color: #888;
+        }
+
+        /* NFT Showcase */
+        .nft-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 0 16px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .nft-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nft-card {
+            min-width: 140px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .nft-image {
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, #2d1b4e, #1e3a5f);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            margin-bottom: 8px;
+        }
+
+        .nft-name {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .nft-rarity {
+            font-size: 0.65rem;
+            color: #ffd700;
+            margin-top: 4px;
+        }
+
+        /* Action Buttons */
+        .actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 15, 0.98);
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 12px 16px 24px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ffd700, #ff6b00);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: flex-end;
+            z-index: 2000;
+            padding: 16px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .address-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .address-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .address-icon {
+            font-size: 2rem;
+        }
+
+        .address-info {
+            flex: 1;
+        }
+
+        .address-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .address-value {
+            font-size: 0.7rem;
+            color: #888;
+            font-family: monospace;
+            margin-top: 4px;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: #ffd700;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            margin-top: 16px;
+            font-size: 1rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(45deg, #ffd700, #ff6b00);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: bold;
+            z-index: 3000;
+            transition: transform 0.3s;
+            opacity: 0;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Tournament Banner */
+        .tournament-banner {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 107, 0, 0.2));
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin: 0 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tournament-icon {
+            font-size: 2.5rem;
+        }
+
+        .tournament-info {
+            flex: 1;
+        }
+
+        .tournament-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .tournament-prize {
+            font-size: 0.8rem;
+            color: #fff;
+            margin-top: 4px;
+        }
+
+        .tournament-time {
+            font-size: 0.7rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading" id="loading">
+        <div class="loading-icon">🏰</div>
+        <div class="loading-text">命运塔加载中...</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🏰</span>
+            <span class="logo-text">命运塔·首登者</span>
+        </div>
+        <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">连接钱包</button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-icon">🏰</div>
+            <h1 class="hero-title">命运塔·首登者 V2.0</h1>
+            <p class="hero-subtitle">13层塔楼 · 208张牌 · Web4.0区块链</p>
+            <span class="web4-badge">🌐 WEB4.0 ENABLED</span>
+        </section>
+
+        <!-- Stats -->
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-value">$0.0012</div>
+                <div class="stat-label">$FATE价格</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">196</div>
+                <div class="stat-label">国家锦标赛</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">74</div>
+                <div class="stat-label">塔楼NFT</div>
+            </div>
+        </section>
+
+        <!-- Tournament Banner -->
+        <div class="tournament-banner">
+            <div class="tournament-icon">🏆</div>
+            <div class="tournament-info">
+                <div class="tournament-title">全球锦标赛进行中</div>
+                <div class="tournament-prize">奖池: 10,000 $FATE</div>
+                <div class="tournament-time">剩余时间: 2天14小时</div>
+            </div>
+        </div>
+
+        <!-- Wallet Card -->
+        <div class="wallet-card" id="walletCard">
+            <div class="wallet-header">
+                <span class="wallet-title">💎 我的资产</span>
+                <span class="wallet-status" id="walletStatus">未连接</span>
+            </div>
+            <div class="balance-grid">
+                <div class="balance-item">
+                    <div class="balance-currency">$FATE</div>
+                    <div class="balance-value" id="fateBalance">0</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-currency">USDT</div>
+                    <div class="balance-value" id="usdtBalance">0</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-currency">NFT</div>
+                    <div class="balance-value" id="nftCount">0</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-currency">积分</div>
+                    <div class="balance-value" id="score">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Modes -->
+        <section class="section">
+            <h2 class="section-title">🎮 游戏模式</h2>
+            <div class="modes-grid">
+                <div class="mode-card" onclick="startGame('solo')">
+                    <div class="mode-icon">👤</div>
+                    <div class="mode-name">个人赛</div>
+                    <div class="mode-desc">4人PK，成为首登者</div>
+                </div>
+                <div class="mode-card" onclick="startGame('team')">
+                    <div class="mode-icon">👥</div>
+                    <div class="mode-name">团队赛</div>
+                    <div class="mode-desc">2v2/3v3 团队竞技</div>
+                </div>
+                <div class="mode-card" onclick="startGame('streak')">
+                    <div class="mode-icon">🔥</div>
+                    <div class="mode-name">连胜模式</div>
+                    <div class="mode-desc">单人挑战，积分制</div>
+                </div>
+                <div class="mode-card" onclick="startGame('tournament')">
+                    <div class="mode-icon">🏆</div>
+                    <div class="mode-name">锦标赛</div>
+                    <div class="mode-desc">全球赛事，巨额奖金</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Methods -->
+        <section class="section">
+            <h2 class="section-title">💰 充值方式 (8种货币)</h2>
+            <div class="payment-grid">
+                <div class="payment-item" onclick="showPayment('USDT')">
+                    <div class="payment-icon">💵</div>
+                    <div class="payment-name">USDT</div>
+                </div>
+                <div class="payment-item" onclick="showPayment('BNB')">
+                    <div class="payment-icon">🟡</div>
+                    <div class="payment-name">BNB</div>
+                </div>
+                <div class="payment-item" onclick="showPayment('ETH')">
+                    <div class="payment-icon">💠</div>
+                    <div class="payment-name">ETH</div>
+                </div>
+                <div class="payment-item" onclick="showPayment('SOL')">
+                    <div class="payment-icon">🟣</div>
+                    <div class="payment-name">SOL</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NFT Showcase -->
+        <section class="section">
+            <h2 class="section-title">🎨 热门塔楼NFT</h2>
+            <div class="nft-scroll">
+                <div class="nft-card">
+                    <div class="nft-image">🏰</div>
+                    <div class="nft-name">哈利法塔</div>
+                    <div class="nft-rarity">⭐⭐⭐ 传说</div>
+                </div>
+                <div class="nft-card">
+                    <div class="nft-image">🗼</div>
+                    <div class="nft-name">埃菲尔铁塔</div>
+                    <div class="nft-rarity">⭐⭐ 史诗</div>
+                </div>
+                <div class="nft-card">
+                    <div class="nft-image">🌉</div>
+                    <div class="nft-name">双子塔</div>
+                    <div class="nft-rarity">⭐⭐ 史诗</div>
+                </div>
+                <div class="nft-card">
+                    <div class="nft-image">⛩️</div>
+                    <div class="nft-name">东京塔</div>
+                    <div class="nft-rarity">⭐ 稀有</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Action Buttons -->
+    <div class="actions">
+        <button class="btn btn-secondary" onclick="showAllPayments()">💳 充值</button>
+        <button class="btn btn-primary" onclick="startGame()">🎮 开始游戏</button>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <h3 class="modal-title">💎 选择充值方式</h3>
+            <div class="address-list">
+                <div class="address-item">
+                    <div class="address-icon">💵</div>
+                    <div class="address-info">
+                        <div class="address-name">USDT (TRC20)</div>
+                        <div class="address-value">TUKf5QXj8nvNhsqy2va8gCnRoG77wKVwwC</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAddress('TUKf5QXj8nvNhsqy2va8gCnRoG77wKVwwC')">复制</button>
+                </div>
+                <div class="address-item">
+                    <div class="address-icon">🟡</div>
+                    <div class="address-info">
+                        <div class="address-name">BNB (BEP20)</div>
+                        <div class="address-value">0x6b107f2a17f218df01367f94c4a77758ba9cb4df</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAddress('0x6b107f2a17f218df01367f94c4a77758ba9cb4df')">复制</button>
+                </div>
+                <div class="address-item">
+                    <div class="address-info">
+                        <div class="address-icon">💠</div>
+                        <div class="address-name">ETH (ERC20)</div>
+                        <div class="address-value">0x6b107f2a17f218df01367f94c4a77758ba9cb4df</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAddress('0x6b107f2a17f218df01367f94c4a77758ba9cb4df')">复制</button>
+                </div>
+                <div class="address-item">
+                    <div class="address-icon">🟣</div>
+                    <div class="address-info">
+                        <div class="address-name">SOL</div>
+                        <div class="address-value">BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAddress('BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN')">复制</button>
+                </div>
+                <div class="address-item">
+                    <div class="address-icon">🟠</div>
+                    <div class="address-info">
+                        <div class="address-name">BTC (Taproot)</div>
+                        <div class="address-value">bc1pnjg9z5el0xt3uzm82symufy3lm56x82vg75dv7xm4eqvvec6j45sx9xzs0</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAddress('bc1pnjg9z5el0xt3uzm82symufy3lm56x82vg75dv7xm4eqvvec6j45sx9xzs0')">复制</button>
+                </div>
+                <div class="address-item">
+                    <div class="address-icon">🔵</div>
+                    <div class="address-info">
+                        <div class="address-name">USDC (Solana)</div>
+                        <div class="address-value">BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN</div>
+                    </div>
+                    <button class="copy-btn" onclick="copyAddress('BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN')">复制</button>
+                </div>
+            </div>
+            <button class="close-btn" onclick="closeModal()">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        // Wallet Configuration
+        const WALLET_CONFIG = {
+            USDT: { network: 'tron', address: 'TUKf5QXj8nvNhsqy2va8gCnRoG77wKVwwC' },
+            BNB: { network: 'bnbchain', address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df' },
+            ETH: { network: 'ethchain', address: '0x6b107f2a17f218df01367f94c4a77758ba9cb4df' },
+            SOL: { network: 'solchain', address: 'BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN' },
+            TRX: { network: 'tron', address: 'TUKf5QXj8nvNhsqy2va8gCnRoG77wKVwwC' },
+            USDC: { network: 'sol', address: 'BYQsmcAq16BQ1K7CUphfuQJephJrDNbm3NVXtsLG6tyN' },
+            BTC: { network: 'taproot', address: 'bc1pnjg9z5el0xt3uzm82symufy3lm56x82vg75dv7xm4eqvvec6j45sx9xzs0' },
+            OKB: { network: 'xlayer', address: 'bc1pnjg9z5el0xt3uzm82symufy3lm56x82vg75dv7xm4eqvvec6j45sx9xzs0' }
+        };
+
+        let walletConnected = false;
+
+        // Initialize
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Connect Wallet
+        async function connectWallet() {
+            showToast('🔗 正在连接钱包...');
+
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({
+                        method: 'eth_requestAccounts'
+                    });
+
+                    walletConnected = true;
+                    const btn = document.getElementById('walletBtn');
+                    btn.textContent = '✅ ' + accounts[0].slice(0, 6) + '...' + accounts[0].slice(-4);
+                    btn.classList.add('connected');
+
+                    document.getElementById('walletStatus').textContent = '已连接';
+                    document.getElementById('walletStatus').classList.add('connected');
+
+                    // Update mock balances
+                    document.getElementById('fateBalance').textContent = '1,250';
+                    document.getElementById('usdtBalance').textContent = '500';
+                    document.getElementById('nftCount').textContent = '3';
+                    document.getElementById('score').textContent = '8,520';
+
+                    showToast('✅ 钱包连接成功！');
+                } catch (error) {
+                    showToast('❌ 连接失败: ' + error.message);
+                }
+            } else {
+                showToast('❌ 请安装 MetaMask');
+                setTimeout(() => {
+                    window.open('https://metamask.io', '_blank');
+                }, 1000);
+            }
+        }
+
+        // Start Game
+        function startGame(mode) {
+            if (!walletConnected) {
+                showToast('⚠️ 请先连接钱包');
+                connectWallet();
+                return;
+            }
+
+            const modeNames = {
+                solo: '个人赛',
+                team: '团队赛',
+                streak: '连胜模式',
+                tournament: '锦标赛'
+            };
+
+            showToast('🎮 正在进入' + (modeNames[mode] || '游戏') + '...');
+
+            // In real implementation, this would navigate to the game
+            setTimeout(() => {
+                alert('🎮 游戏功能演示\n\n在完整版本中，这里将进入：\n• 13层塔楼3D可视化\n• 52张手牌交互\n• 实时WebSocket对战\n• 激怒牌机制\n• 首登者竞争');
+            }, 500);
+        }
+
+        // Show Payment Modal
+        function showPayment(currency) {
+            showModal();
+            showToast('💰 选择' + currency + '充值');
+        }
+
+        function showAllPayments() {
+            showModal();
+        }
+
+        function showModal() {
+            document.getElementById('paymentModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('paymentModal').classList.remove('show');
+        }
+
+        // Copy Address
+        function copyAddress(address) {
+            navigator.clipboard.writeText(address).then(() => {
+                showToast('✅ 地址已复制！');
+            }).catch(() => {
+                showToast('❌ 复制失败，请手动复制');
+            });
+        }
+
+        // Show Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // Close modal on outside click
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
