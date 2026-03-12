@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>商城 - 命运塔·首登者 V2.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a3e, #0d1b2a);
+            min-height: 100vh;
+            color: #fff;
+            padding-bottom: 80px;
+        }
+        .header {
+            background: linear-gradient(90deg, #6b2c91, #4a148c);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .back-btn { color: #fff; text-decoration: none; font-size: 16px; }
+        .header-title { color: #FFD700; font-size: 18px; font-weight: bold; }
+        .header-balance {
+            display: flex;
+            gap: 10px;
+        }
+        .balance-item {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .balance-item .fate { color: #00ff88; }
+        .balance-item .usdt { color: #00d9ff; }
+        .balance-item .diamond { color: #ff6b6b; }
+
+        /* 分类标签 */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            overflow-x: auto;
+            background: rgba(0,0,0,0.3);
+            -webkit-overflow-scrolling: touch;
+        }
+        .category-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .category-tab.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* 商品列表 */
+        .products-container {
+            padding: 15px;
+        }
+        .section-title {
+            font-size: 16px;
+            color: #FFD700;
+            margin: 20px 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .product-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 2px solid rgba(255,215,0,0.2);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .product-item:hover, .product-item:active {
+            border-color: #FFD700;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.2);
+        }
+        .product-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #ff4757, #ff6b6b);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .product-badge.hot {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+        }
+        .product-badge.vip {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+        .product-badge.new {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+        }
+        .product-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .product-desc {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 10px;
+            min-height: 30px;
+        }
+        .product-price {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+        .price-fate { color: #00ff88; }
+        .price-usdt { color: #00d9ff; }
+        .price-diamond { color: #ff6b6b; }
+        .buy-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #2ed573, #26c281);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .buy-btn:hover {
+            background: linear-gradient(135deg, #26c281, #20b070);
+            transform: scale(1.02);
+        }
+        .buy-btn:disabled {
+            background: #444;
+            color: #666;
+            cursor: not-allowed;
+        }
+        .buy-btn.premium {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+        }
+
+        /* NFT专区 */
+        .nft-section {
+            background: linear-gradient(135deg, rgba(155,89,182,0.2), rgba(142,68,173,0.1));
+            border: 2px solid rgba(155,89,182,0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .nft-item {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .nft-item:hover {
+            transform: scale(1.03);
+        }
+        .nft-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+        .nft-info {
+            padding: 12px;
+        }
+        .nft-name {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .nft-rarity {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        .rarity-common { background: #95a5a6; color: #fff; }
+        .rarity-rare { background: #3498db; color: #fff; }
+        .rarity-epic { background: #9b59b6; color: #fff; }
+        .rarity-legendary { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #0f0f1e, #0a0a14);
+            border-top: 1px solid rgba(255,215,0,0.2);
+            display: flex;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            z-index: 1000;
+        }
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-item.active {
+            color: #FFD700;
+        }
+        .nav-icon { font-size: 24px; margin-bottom: 3px; }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            font-size: 16px;
+            z-index: 10000;
+            display: none;
+            border: 2px solid #FFD700;
+            text-align: center;
+        }
+        .toast.show { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">← 返回</a>
+        <div class="header-title">🛒 商城</div>
+        <div class="header-balance">
+            <div class="balance-item">
+                <span class="fate">🏛️</span>
+                <span id="fateBalance">0</span>
+            </div>
+            <div class="balance-item">
+                <span class="usdt">💎</span>
+                <span id="usdtBalance">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分类 -->
+    <div class="category-tabs">
+        <div class="category-tab active" onclick="switchCategory('all', this)">全部</div>
+        <div class="category-tab" onclick="switchCategory('vip', this)">VIP</div>
+        <div class="category-tab" onclick="switchCategory('skin', this)">皮肤</div>
+        <div class="category-tab" onclick="switchCategory('effect', this)">特效</div>
+        <div class="category-tab" onclick="switchCategory('cardback', this)">卡背</div>
+        <div class="category-tab" onclick="switchCategory('frame', this)">头像框</div>
+        <div class="category-tab" onclick="switchCategory('booster', this)">道具</div>
+    </div>
+
+    <div class="products-container">
+        <!-- NFT专区 -->
+        <div class="nft-section">
+            <div class="section-title">🎨 NFT塔楼资产</div>
+            <div class="nft-grid" id="nftGrid"></div>
+        </div>
+
+        <!-- 热销推荐 -->
+        <div class="section-title">🔥 热销推荐</div>
+        <div class="products-grid" id="hotProducts"></div>
+
+        <!-- VIP通行证 -->
+        <div class="section-title">👑 VIP特权</div>
+        <div class="products-grid" id="vipProducts"></div>
+
+        <!-- 卡牌皮肤 -->
+        <div class="section-title">🎨 卡牌皮肤</div>
+        <div class="products-grid" id="skinProducts"></div>
+
+        <!-- 特效 -->
+        <div class="section-title">✨ 出牌特效</div>
+        <div class="products-grid" id="effectProducts"></div>
+
+        <!-- 卡背 -->
+        <div class="section-title">🃏 卡背样式</div>
+        <div class="products-grid" id="cardbackProducts"></div>
+
+        <!-- 头像框 -->
+        <div class="section-title">🖼️ 头像框</div>
+        <div class="products-grid" id="frameProducts"></div>
+
+        <!-- 道具 -->
+        <div class="section-title">🎁 增益道具</div>
+        <div class="products-grid" id="boosterProducts"></div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="location.href='index.html'">
+            <div class="nav-icon">🏠</div>
+            <div>首页</div>
+        </div>
+        <div class="nav-item" onclick="location.href='game-solo.html'">
+            <div class="nav-icon">🎮</div>
+            <div>对战</div>
+        </div>
+        <div class="nav-item active" onclick="location.href='shop.html'">
+            <div class="nav-icon">🛒</div>
+            <div>商城</div>
+        </div>
+        <div class="nav-item" onclick="location.href='tournament-hub.html'">
+            <div class="nav-icon">🏆</div>
+            <div>锦标赛</div>
+        </div>
+        <div class="nav-item" onclick="location.href='profile.html'">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="shop-data.js"></script>
+    <script>
+        // 加载用户资产
+        function loadUserAssets() {
+            const wallet = JSON.parse(localStorage.getItem('towerOfFate_wallet') || '{}');
+            const guestRewards = JSON.parse(localStorage.getItem('towerOfFate_guestRewards') || '{}');
+
+            if (wallet && wallet.address) {
+                document.getElementById('fateBalance').textContent = '1,250';
+                document.getElementById('usdtBalance').textContent = '500';
+            } else {
+                document.getElementById('fateBalance').textContent = guestRewards.fate || 0;
+                document.getElementById('usdtBalance').textContent = guestRewards.usdt || 0;
+            }
+        }
+
+        // 渲染NFT
+        function renderNFTs() {
+            const nfts = [
+                { id: 'nft_1', name: '青铜塔楼', rarity: 'common', icon: '🏛️', price: 100 },
+                { id: 'nft_2', name: '白银塔楼', rarity: 'rare', icon: '🏰', price: 500 },
+                { id: 'nft_3', name: '黄金塔楼', rarity: 'epic', icon: '👑', price: 2000 },
+                { id: 'nft_4', name: '水晶塔楼', rarity: 'legendary', icon: '💎', price: 10000 }
+            ];
+
+            const nftGrid = document.getElementById('nftGrid');
+            nftGrid.innerHTML = nfts.map(nft => `
+                <div class="nft-item" onclick="buyNFT('${nft.id}', '${nft.name}', ${nft.price})">
+                    <div class="nft-image">${nft.icon}</div>
+                    <div class="nft-info">
+                        <div class="nft-name">${nft.name}</div>
+                        <span class="nft-rarity rarity-${nft.rarity}">${getRarityName(nft.rarity)}</span>
+                        <div class="product-price price-fate">🏛️ ${nft.price} $FATE</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getRarityName(rarity) {
+            const names = { common: '普通', rare: '稀有', epic: '史诗', legendary: '传说' };
+            return names[rarity] || rarity;
+        }
+
+        // 渲染商品
+        function renderProducts() {
+            // 热销商品
+            const hotItems = SHOP_DATA.filter(item => item.isHot);
+            document.getElementById('hotProducts').innerHTML = hotItems.map(item => createProductHTML(item)).join('');
+
+            // VIP
+            const vipItems = SHOP_DATA.filter(item => item.category === 'vip');
+            document.getElementById('vipProducts').innerHTML = vipItems.map(item => createProductHTML(item)).join('');
+
+            // 皮肤
+            const skinItems = SHOP_DATA.filter(item => item.category === 'skin');
+            document.getElementById('skinProducts').innerHTML = skinItems.map(item => createProductHTML(item)).join('');
+
+            // 特效
+            const effectItems = SHOP_DATA.filter(item => item.category === 'effect');
+            document.getElementById('effectProducts').innerHTML = effectItems.map(item => createProductHTML(item)).join('');
+
+            // 卡背
+            const cardbackItems = SHOP_DATA.filter(item => item.category === 'cardback');
+            document.getElementById('cardbackProducts').innerHTML = cardbackItems.map(item => createProductHTML(item)).join('');
+
+            // 头像框
+            const frameItems = SHOP_DATA.filter(item => item.category === 'frame');
+            document.getElementById('frameProducts').innerHTML = frameItems.map(item => createProductHTML(item)).join('');
+
+            // 道具
+            const boosterItems = SHOP_DATA.filter(item => item.category === 'booster');
+            document.getElementById('boosterProducts').innerHTML = boosterItems.map(item => createProductHTML(item)).join('');
+        }
+
+        function createProductHTML(item) {
+            const badgeHTML = item.isHot ? '<div class="product-badge hot">HOT</div>' :
+                            item.isNew ? '<div class="product-badge new">NEW</div>' :
+                            item.category === 'vip' ? '<div class="product-badge vip">VIP</div>' : '';
+
+            const priceHTML = item.currency === 'fate' ?
+                `<div class="product-price price-fate">🏛️ ${item.price} $FATE</div>` :
+                item.currency === 'usdt' ?
+                `<div class="product-price price-usdt">💎 ${item.price} USDT</div>` :
+                `<div class="product-price price-diamond">💎 ${item.price}</div>`;
+
+            const btnClass = item.category === 'vip' ? 'buy-btn premium' : 'buy-btn';
+
+            return `
+                <div class="product-item" data-category="${item.category}" data-id="${item.id}">
+                    ${badgeHTML}
+                    <div class="product-icon">${item.icon}</div>
+                    <div class="product-name">${item.name}</div>
+                    <div class="product-desc">${item.desc}</div>
+                    ${priceHTML}
+                    <button class="${btnClass}" onclick="buyItem('${item.id}', '${item.name}', ${item.price}, '${item.currency}')">购买</button>
+                </div>
+            `;
+        }
+
+        // 切换分类
+        function switchCategory(category, element) {
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+
+            document.querySelectorAll('.product-item').forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // 隐藏/显示分区标题
+            const sections = document.querySelectorAll('.section-title');
+            sections.forEach(section => section.style.display = category === 'all' ? 'flex' : 'none');
+        }
+
+        // 购买商品
+        function buyItem(id, name, price, currency) {
+            const wallet = JSON.parse(localStorage.getItem('towerOfFate_wallet') || '{}');
+            const guestRewards = JSON.parse(localStorage.getItem('towerOfFate_guestRewards') || '{}');
+
+            let balance = 0;
+            if (currency === 'fate') {
+                balance = wallet.address ? 1250 : (guestRewards.fate || 0);
+            } else if (currency === 'usdt') {
+                balance = wallet.address ? 500 : (guestRewards.usdt || 0);
+            }
+
+            if (balance < price) {
+                if (currency === 'usdt' && !wallet.address) {
+                    showToast('💎 余额不足\n连接钱包后可充值');
+                    setTimeout(() => {
+                        if (confirm('是否前往连接钱包？')) {
+                            location.href = 'index.html';
+                        }
+                    }, 500);
+                } else {
+                    showToast('🏛️ 余额不足！\n继续游戏赚取 $FATE');
+                }
+                return;
+            }
+
+            // 扣除余额
+            if (!wallet.address) {
+                if (currency === 'fate') {
+                    guestRewards.fate = (guestRewards.fate || 0) - price;
+                } else if (currency === 'usdt') {
+                    guestRewards.usdt = (guestRewards.usdt || 0) - price;
+                }
+                localStorage.setItem('towerOfFate_guestRewards', JSON.stringify(guestRewards));
+            }
+
+            // 保存购买记录
+            let items = JSON.parse(localStorage.getItem('towerOfFate_items') || '[]');
+            items.push({
+                id: id,
+                name: name,
+                boughtAt: new Date().toISOString()
+            });
+            localStorage.setItem('towerOfFate_items', JSON.stringify(items));
+
+            showToast(`🎉 购买成功！\n${name} 已添加到您的背包`);
+            loadUserAssets();
+        }
+
+        // 购买NFT
+        function buyNFT(id, name, price) {
+            buyItem(id, name, price, 'fate');
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 初始化
+        loadUserAssets();
+        renderNFTs();
+        renderProducts();
+    </script>
+</body>
+</html>

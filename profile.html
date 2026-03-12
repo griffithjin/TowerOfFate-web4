@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>个人中心 - 命运塔·首登者 V2.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a3e, #0d1b2a);
+            min-height: 100vh;
+            color: #fff;
+            padding-bottom: 80px;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(90deg, #6b2c91, #4a148c);
+            padding: 20px 15px;
+            text-align: center;
+        }
+        .header-title { color: #FFD700; font-size: 18px; font-weight: bold; }
+
+        /* 用户信息卡片 */
+        .profile-card {
+            margin: -30px 20px 20px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1));
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 20px;
+            text-align: center;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 15px;
+            border: 3px solid #FFD700;
+        }
+        .username {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .user-id {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        .wallet-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .wallet-connected {
+            background: rgba(0,255,136,0.2);
+            color: #00ff88;
+        }
+        .wallet-guest {
+            background: rgba(255,107,107,0.2);
+            color: #ff6b6b;
+        }
+
+        /* 资产统计 */
+        .assets-section {
+            margin: 20px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .asset-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .asset-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        .asset-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .asset-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+        .asset-fate { color: #00ff88; }
+        .asset-usdt { color: #00d9ff; }
+        .asset-nft { color: #FFD700; }
+        .asset-score { color: #ff6b6b; }
+
+        /* 统计数据 */
+        .stats-section {
+            margin: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+        }
+        .section-title {
+            font-size: 16px;
+            color: #FFD700;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* 菜单列表 */
+        .menu-section {
+            margin: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover {
+            background: rgba(255,215,0,0.1);
+        }
+        .menu-icon {
+            width: 40px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .menu-text {
+            flex: 1;
+            font-size: 15px;
+        }
+        .menu-arrow {
+            color: #888;
+            font-size: 18px;
+        }
+        .menu-badge {
+            background: #ff4757;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-right: 10px;
+        }
+
+        /* NFT展示 */
+        .nft-section {
+            margin: 20px;
+        }
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .nft-item {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            border: 2px solid transparent;
+        }
+        .nft-item.legendary {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.3);
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #0f0f1e, #0a0a14);
+            border-top: 1px solid rgba(255,215,0,0.2);
+            display: flex;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            z-index: 1000;
+        }
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .nav-item.active { color: #FFD700; }
+        .nav-icon { font-size: 24px; margin-bottom: 3px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 2px solid #FFD700;
+            z-index: 10000;
+            display: none;
+            text-align: center;
+        }
+        .toast.show { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">👤 个人中心</div>
+    </div>
+
+    <!-- 用户信息 -->
+    <div class="profile-card">
+        <div class="avatar" id="userAvatar">👤</div>
+        <div class="username" id="username">游客用户</div>
+        <div class="user-id" id="userId">ID: --</div>
+        <div class="wallet-status wallet-guest" id="walletStatus">
+            ⚪ 未连接钱包
+        </div>
+    </div>
+
+    <!-- 资产统计 -->
+    <div class="assets-section">
+        <div class="asset-card">
+            <div class="asset-icon">🏛️</div>
+            <div class="asset-value asset-fate" id="fateBalance">0</div>
+            <div class="asset-label">$FATE</div>
+        </div>
+        <div class="asset-card">
+            <div class="asset-icon">💎</div>
+            <div class="asset-value asset-usdt" id="usdtBalance">0</div>
+            <div class="asset-label">USDT</div>
+        </div>
+        <div class="asset-card">
+            <div class="asset-icon">🖼️</div>
+            <div class="asset-value asset-nft" id="nftCount">0</div>
+            <div class="asset-label">NFT</div>
+        </div>
+        <div class="asset-card">
+            <div class="asset-icon">⭐</div>
+            <div class="asset-value asset-score" id="score">0</div>
+            <div class="asset-label">积分</div>
+        </div>
+    </div>
+
+    <!-- 游戏统计 -->
+    <div class="stats-section">
+        <div class="section-title">📊 游戏数据</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="totalGames">0</div>
+                <div class="stat-label">总场次</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="wins">0</div>
+                <div class="stat-label">胜利</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="firstAscents">0</div>
+                <div class="stat-label">首登</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="winRate">0%</div>
+                <div class="stat-label">胜率</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NFT收藏 -->
+    <div class="nft-section">
+        <div class="section-title">🖼️ NFT收藏</div>
+        <div class="nft-grid" id="nftGrid">
+            <div class="nft-item">🏛️</div>
+            <div class="nft-item">🏰</div>
+            <div class="nft-item legendary">👑</div>
+            <div class="nft-item">💎</div>
+        </div>
+    </div>
+
+    <!-- 菜单 -->
+    <div class="menu-section">
+        <div class="menu-item" onclick="goTo('backpack')">
+            <div class="menu-icon">🎒</div>
+            <div class="menu-text">我的背包</div>
+            <div class="menu-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="goTo('history')">
+            <div class="menu-icon">📜</div>
+            <div class="menu-text">对战记录</div>
+            <div class="menu-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="goTo('wallet')">
+            <div class="menu-icon">💰</div>
+            <div class="menu-text" id="walletMenuText">连接钱包</div>
+            <div class="menu-arrow">›</div>
+        </div>
+        <div class="menu-item" onclick="goTo('settings')">
+            <div class="menu-icon">⚙️</div>
+            <div class="menu-text">设置</div>
+            <div class="menu-arrow">›</div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="location.href='index.html'">
+            <div class="nav-icon">🏠</div>
+            <div>首页</div>
+        </div>
+        <div class="nav-item" onclick="location.href='game-solo.html'">
+            <div class="nav-icon">🎮</div>
+            <div>对战</div>
+        </div>
+        <div class="nav-item" onclick="location.href='shop.html'">
+            <div class="nav-icon">🛒</div>
+            <div>商城</div>
+        </div>
+        <div class="nav-item" onclick="location.href='tournament-hub.html'">
+            <div class="nav-icon">🏆</div>
+            <div>锦标赛</div>
+        </div>
+        <div class="nav-item active" onclick="location.href='profile.html'">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 加载用户数据
+        function loadUserData() {
+            const wallet = JSON.parse(localStorage.getItem('towerOfFate_wallet') || '{}');
+            const guestRewards = JSON.parse(localStorage.getItem('towerOfFate_guestRewards') || '{}');
+            const gameStats = JSON.parse(localStorage.getItem('towerOfFate_stats') || '{}');
+
+            if (wallet && wallet.address) {
+                // 已连接钱包
+                document.getElementById('username').textContent = wallet.address.slice(0, 6) + '...' + wallet.address.slice(-4);
+                document.getElementById('userId').textContent = 'ID: ' + wallet.address.slice(-8).toUpperCase();
+                document.getElementById('userAvatar').textContent = '👑';
+                document.getElementById('walletStatus').className = 'wallet-status wallet-connected';
+                document.getElementById('walletStatus').innerHTML = '✅ 已连接';
+                document.getElementById('walletMenuText').textContent = '钱包管理';
+
+                // 显示模拟余额
+                document.getElementById('fateBalance').textContent = '1,250';
+                document.getElementById('usdtBalance').textContent = '500';
+                document.getElementById('nftCount').textContent = '3';
+                document.getElementById('score').textContent = '8,520';
+            } else {
+                // 游客模式
+                const guestId = 'G' + Math.floor(Math.random() * 999999);
+                document.getElementById('username').textContent = '游客' + guestId.slice(-4);
+                document.getElementById('userId').textContent = 'ID: ' + guestId;
+
+                // 游客资产
+                document.getElementById('fateBalance').textContent = guestRewards.fate || 0;
+                document.getElementById('usdtBalance').textContent = guestRewards.usdt || 0;
+                document.getElementById('nftCount').textContent = guestRewards.nfts?.length || 0;
+                document.getElementById('score').textContent = guestRewards.score || 0;
+            }
+
+            // 游戏统计
+            document.getElementById('totalGames').textContent = gameStats.totalGames || 0;
+            document.getElementById('wins').textContent = gameStats.wins || 0;
+            document.getElementById('firstAscents').textContent = gameStats.firstAscents || 0;
+
+            const total = gameStats.totalGames || 0;
+            const wins = gameStats.wins || 0;
+            document.getElementById('winRate').textContent = total > 0 ? Math.round(wins/total*100) + '%' : '0%';
+        }
+
+        // 导航
+        function goTo(page) {
+            if (page === 'wallet') {
+                const wallet = JSON.parse(localStorage.getItem('towerOfFate_wallet') || '{}');
+                if (wallet.address) {
+                    showToast('💰 钱包已连接\n' + wallet.address.slice(0, 10) + '...');
+                } else {
+                    location.href = 'index.html';
+                }
+            } else if (page === 'backpack') {
+                const items = JSON.parse(localStorage.getItem('towerOfFate_items') || '[]');
+                showToast(`🎒 背包\n共有 ${items.length} 件物品`);
+            } else if (page === 'history') {
+                showToast('📜 对战记录\n功能开发中...');
+            } else if (page === 'settings') {
+                showToast('⚙️ 设置\n功能开发中...');
+            }
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = message.replace(/\n/g, '<br>');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 初始化
+        loadUserData();
+    </script>
+</body>
+</html>

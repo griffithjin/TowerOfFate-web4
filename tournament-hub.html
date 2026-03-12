@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+    <title>锦标赛 - 命运塔·首登者 V2.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a3e, #2d1b4e, #0d1b2a);
+            min-height: 100vh;
+            color: #fff;
+            padding-bottom: 80px;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(90deg, #ff6b35, #f7931e);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .back-btn { color: #fff; text-decoration: none; font-size: 16px; }
+        .header-title { color: #fff; font-size: 18px; font-weight: bold; }
+        .header-stats {
+            display: flex;
+            gap: 10px;
+        }
+        .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        /* 倒计时区 */
+        .countdown-section {
+            margin: 20px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(102,126,234,0.9), rgba(118,75,162,0.9));
+            border-radius: 20px;
+            text-align: center;
+        }
+        .countdown-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .time-unit {
+            background: rgba(0,0,0,0.3);
+            padding: 15px 20px;
+            border-radius: 12px;
+            min-width: 70px;
+        }
+        .time-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .time-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .next-match {
+            margin-top: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* 奖池 */
+        .prize-pool {
+            margin: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 20px;
+            text-align: center;
+        }
+        .prize-label {
+            font-size: 14px;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        .prize-amount {
+            font-size: 36px;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.5);
+        }
+        .prize-amount span {
+            font-size: 18px;
+        }
+        .prize-dist {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        .prize-dist-item {
+            text-align: center;
+        }
+        .prize-dist-icon {
+            font-size: 24px;
+        }
+        .prize-dist-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            font-weight: bold;
+        }
+
+        /* 内容区 */
+        .content-section {
+            padding: 0 20px;
+        }
+
+        /* 国家列表 */
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .country-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .country-card:hover, .country-card:active {
+            background: rgba(255,215,0,0.1);
+            border-color: rgba(255,215,0,0.3);
+            transform: scale(1.02);
+        }
+        .country-flag {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .country-name {
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .country-difficulty {
+            font-size: 10px;
+            margin-top: 3px;
+        }
+        .diff-easy { color: #00ff88; }
+        .diff-medium { color: #FFD700; }
+        .diff-hard { color: #ff6b6b; }
+
+        /* 我的比赛 */
+        .match-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .match-title {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .match-status {
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .status-upcoming { background: #3498db; }
+        .status-live { background: #e74c3c; animation: pulse 2s infinite; }
+        .status-ended { background: #95a5a6; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .match-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .match-vs {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .match-player {
+            text-align: center;
+        }
+        .match-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .match-name {
+            font-size: 12px;
+        }
+        .match-vs-text {
+            font-size: 14px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .match-prize {
+            text-align: right;
+        }
+        .match-prize-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .match-prize-label {
+            font-size: 11px;
+            color: #888;
+        }
+
+        /* 排行榜 */
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .rank-number {
+            width: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .rank-1 { color: #FFD700; }
+        .rank-2 { color: #C0C0C0; }
+        .rank-3 { color: #CD7F32; }
+        .rank-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 15px;
+        }
+        .rank-info {
+            flex: 1;
+        }
+        .rank-name {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .rank-country {
+            font-size: 12px;
+            color: #888;
+        }
+        .rank-score {
+            font-size: 16px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        /* 底部导航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #0f0f1e, #0a0a14);
+            border-top: 1px solid rgba(255,215,0,0.2);
+            display: flex;
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+            z-index: 1000;
+        }
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            color: #888;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .nav-item.active { color: #FFD700; }
+        .nav-icon { font-size: 24px; margin-bottom: 3px; }
+
+        /* 隐藏 */
+        .hidden { display: none !important; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 16px;
+            border: 2px solid #FFD700;
+            z-index: 10000;
+            display: none;
+            text-align: center;
+        }
+        .toast.show { display: block; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">← 返回</a>
+        <div class="header-title">🏆 锦标赛</div>
+        <div class="header-stats">
+            <div class="stat-item">🏛️ <span id="fateBalance">0</span></div>
+        </div>
+    </div>
+
+    <!-- 倒计时 -->
+    <div class="countdown-section">
+        <div class="countdown-title">⏰ 下一场锦标赛开始</div>
+        <div class="countdown-timer">
+            <div class="time-unit">
+                <div class="time-value" id="hours">02</div>
+                <div class="time-label">小时</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="minutes">45</div>
+                <div class="time-label">分钟</div>
+            </div>
+            <div class="time-unit">
+                <div class="time-value" id="seconds">30</div>
+                <div class="time-label">秒</div>
+            </div>
+        </div>
+        <div class="next-match">🌍 全球总决赛</div>
+    </div>
+
+    <!-- 奖池 -->
+    <div class="prize-pool">
+        <div class="prize-label">💰 当前奖池</div>
+        <div class="prize-amount">$<span id="prizeAmount">128,580</span></div>
+        <div class="prize-dist">
+            <div class="prize-dist-item">
+                <div class="prize-dist-icon">🥇</div>
+                <div class="prize-dist-value">50%</div>
+            </div>
+            <div class="prize-dist-item">
+                <div class="prize-dist-icon">🥈</div>
+                <div class="prize-dist-value">25%</div>
+            </div>
+            <div class="prize-dist-item">
+                <div class="prize-dist-icon">🥉</div>
+                <div class="prize-dist-value">15%</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('countries', this)">🌍 国家</div>
+        <div class="tab" onclick="switchTab('matches', this)">🎮 我的比赛</div>
+        <div class="tab" onclick="switchTab('leaderboard', this)">🏆 排行榜</div>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content-section">
+        <!-- 国家列表 -->
+        <div id="countriesTab" class="tab-content">
+            <div class="country-grid" id="countryGrid"></div>
+        </div>
+
+        <!-- 我的比赛 -->
+        <div id="matchesTab" class="tab-content hidden">
+            <div id="matchList"></div>
+        </div>
+
+        <!-- 排行榜 -->
+        <div id="leaderboardTab" class="tab-content hidden">
+            <div id="leaderboardList"></div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item" onclick="location.href='index.html'">
+            <div class="nav-icon">🏠</div>
+            <div>首页</div>
+        </div>
+        <div class="nav-item" onclick="location.href='game-solo.html'">
+            <div class="nav-icon">🎮</div>
+            <div>对战</div>
+        </div>
+        <div class="nav-item" onclick="location.href='shop.html'">
+            <div class="nav-icon">🛒</div>
+            <div>商城</div>
+        </div>
+        <div class="nav-item active" onclick="location.href='tournament-hub.html'">
+            <div class="nav-icon">🏆</div>
+            <div>锦标赛</div>
+        </div>
+        <div class="nav-item" onclick="location.href='profile.html'">
+            <div class="nav-icon">👤</div>
+            <div>我的</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="world-tournaments-data.js"></script>
+    <script>
+        // 加载用户数据
+        function loadUserData() {
+            const wallet = JSON.parse(localStorage.getItem('towerOfFate_wallet') || '{}');
+            const guestRewards = JSON.parse(localStorage.getItem('towerOfFate_guestRewards') || '{}');
+            document.getElementById('fateBalance').textContent = wallet.address ? '1,250' : (guestRewards.fate || 0);
+        }
+
+        // 渲染国家列表 (展示热门国家)
+        function renderCountries() {
+            // 选择48个热门国家展示
+            const hotCountries = [
+                'CN', 'US', 'JP', 'KR', 'GB', 'DE', 'FR', 'RU', 'BR', 'IN',
+                'AU', 'CA', 'IT', 'ES', 'MX', 'ID', 'NL', 'SA', 'TR', 'TW',
+                'TH', 'VN', 'MY', 'PH', 'SG', 'AE', 'ZA', 'EG', 'NG', 'KE',
+                'AR', 'CL', 'CO', 'PE', 'VE', 'SE', 'NO', 'DK', 'FI', 'PL',
+                'UA', 'CZ', 'HU', 'RO', 'GR', 'PT', 'BE', 'AT'
+            ];
+
+            const countries = hotCountries.map(code => {
+                const data = WORLD_TOURNAMENT_DATA.countries[code];
+                return { code, ...data };
+            });
+
+            const grid = document.getElementById('countryGrid');
+            grid.innerHTML = countries.map(country => {
+                const diffClass = country.difficulty <= 3 ? 'diff-easy' :
+                                  country.difficulty <= 6 ? 'diff-medium' : 'diff-hard';
+                const diffText = country.difficulty <= 3 ? '简单' :
+                                 country.difficulty <= 6 ? '中等' : '困难';
+
+                return `
+                    <div class="country-card" onclick="joinTournament('${country.code}')">
+                        <div class="country-flag">${country.flag}</div>
+                        <div class="country-name">${country.name}</div>
+                        <div class="country-difficulty ${diffClass}">${diffText}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染我的比赛
+        function renderMatches() {
+            const matches = [
+                {
+                    id: 1,
+                    title: '🇨🇳 中国区预选赛',
+                    status: 'live',
+                    opponent: 'AI玩家',
+                    prize: '500 $FATE',
+                    time: '进行中'
+                },
+                {
+                    id: 2,
+                    title: '🌏 亚洲区小组赛',
+                    status: 'upcoming',
+                    opponent: '待定',
+                    prize: '2000 $FATE',
+                    time: '2小时后'
+                },
+                {
+                    id: 3,
+                    title: '🌍 全球总决赛',
+                    status: 'upcoming',
+                    opponent: '待定',
+                    prize: '$10,000',
+                    time: '3天后'
+                }
+            ];
+
+            const list = document.getElementById('matchList');
+            list.innerHTML = matches.map(match => {
+                const statusClass = match.status === 'live' ? 'status-live' :
+                                    match.status === 'upcoming' ? 'status-upcoming' : 'status-ended';
+                const statusText = match.status === 'live' ? '● 直播中' :
+                                   match.status === 'upcoming' ? '即将开始' : '已结束';
+
+                return `
+                    <div class="match-card">
+                        <div class="match-header">
+                            <div class="match-title">${match.title}</div>
+                            <div class="match-status ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="match-info">
+                            <div class="match-vs">
+                                <div class="match-player">
+                                    <div class="match-avatar">👤</div>
+                                    <div class="match-name">我</div>
+                                </div>
+                                <div class="match-vs-text">VS</div>
+                                <div class="match-player">
+                                    <div class="match-avatar">🤖</div>
+                                    <div class="match-name">${match.opponent}</div>
+                                </div>
+                            </div>
+                            <div class="match-prize">
+                                <div class="match-prize-value">${match.prize}</div>
+                                <div class="match-prize-label">${match.time}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染排行榜
+        function renderLeaderboard() {
+            const leaders = [
+                { rank: 1, name: '金龙战士', country: '🇨🇳', score: '125,800' },
+                { rank: 2, name: 'Phoenix', country: '🇺🇸', score: '118,500' },
+                { rank: 3, name: '武士之魂', country: '🇯🇵', score: '112,200' },
+                { rank: 4, name: 'DragonSlayer', country: '🇬🇧', score: '105,600' },
+                { rank: 5, name: '塔王', country: '🇰🇷', score: '98,900' },
+                { rank: 6, name: '命运之子', country: '🇷🇺', score: '92,400' },
+                { rank: 7, name: 'Ascender', country: '🇩🇪', score: '87,100' },
+                { rank: 8, name: '首登者', country: '🇫🇷', score: '81,500' }
+            ];
+
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = leaders.map(player => `
+                <div class="leaderboard-item">
+                    <div class="rank-number rank-${player.rank}">#${player.rank}</div>
+                    <div class="rank-avatar">${player.country}</div>
+                    <div class="rank-info">
+                        <div class="rank-name">${player.name}</div>
+                        <div class="rank-country">${player.country} 全球排名</div>
+                    </div>
+                    <div class="rank-score">${player.score}</div>
+                </div>
+            `).join('');
+        }
+
+        // 切换标签
+        function switchTab(tab, element) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+            document.getElementById(tab + 'Tab').classList.remove('hidden');
+        }
+
+        // 加入锦标赛
+        function joinTournament(countryCode) {
+            const country = WORLD_TOURNAMENT_DATA.countries[countryCode];
+            const wallet = JSON.parse(localStorage.getItem('towerOfFate_wallet') || '{}');
+
+            if (!wallet.address) {
+                showToast('⚠️ 需要连接钱包\n才能参加锦标赛');
+                setTimeout(() => {
+                    if (confirm('是否前往连接钱包？')) {
+                        location.href = 'index.html';
+                    }
+                }, 500);
+                return;
+            }
+
+            // 检查报名费
+            const entryFee = country.entryFee || 100;
+            showToast(`🎮 正在报名\n${country.flag} ${country.name}...`);
+
+            setTimeout(() => {
+                location.href = `game-tournament.html?country=${countryCode}`;
+            }, 1000);
+        }
+
+        // 倒计时
+        function startCountdown() {
+            let hours = 2, minutes = 45, seconds = 30;
+
+            setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                }
+                if (minutes < 0) {
+                    minutes = 59;
+                    hours--;
+                }
+                if (hours < 0) {
+                    hours = 23;
+                }
+
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = message.replace(/\n/g, '<br>');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 初始化
+        loadUserData();
+        renderCountries();
+        renderMatches();
+        renderLeaderboard();
+        startCountdown();
+    </script>
+</body>
+</html>
