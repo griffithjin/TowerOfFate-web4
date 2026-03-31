@@ -1291,15 +1291,15 @@
 
             setTimeout(() => {
                 if (mode === 'solo') {
-                    window.location.href = 'game-solo.html';
+                    window.location.href = 'play.html?mode=solo';
                 } else if (mode === 'team') {
-                    window.location.href = 'game-team.html';
+                    window.location.href = 'play.html?mode=team';
                 } else if (mode === 'streak') {
-                    window.location.href = 'game-streak.html';
+                    window.location.href = 'play.html?mode=streak';
                 } else if (mode === 'tournament') {
-                    window.location.href = 'game-tournament.html';
+                    window.location.href = 'tournament-hub.html';
                 } else {
-                    alert('🎮 游戏功能演示\n\n' + playerInfo + '\n\n模式: ' + (modeNames[mode] || '标准模式') + '\n\n在完整版本中，这里将进入：\n• 13层塔楼3D可视化\n• 52张手牌交互\n• 实时WebSocket对战\n• 激怒牌机制\n• 首登者竞争');
+                    window.location.href = 'play.html';
                 }
             }, 500);
         }
